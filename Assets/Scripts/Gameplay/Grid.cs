@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 
 namespace Gameplay
@@ -8,7 +7,7 @@ namespace Gameplay
         public int Width { get; }
         public int Height { get; }
         public Cell[,] Cells { get; }
-        public List<Door> Doors { get; }
+        public List<Door> Doors { get; } = new();
 
 
         public Grid(int width = 8, int height = 8)
@@ -43,6 +42,65 @@ namespace Gameplay
             }
 
             return CanOccupy(block, block.PivotCell.Row + dy, block.PivotCell.Column + dx);
+        }
+
+        public bool CanExit(Block block, Door door)
+        {
+            if (block.Color != door.Color)
+            {
+                return false;
+            }
+
+            var dx = 0;
+            var dy = 0;
+            switch (door.Side)
+            {
+                case BoardSide.Top:
+                    dy = 1;
+                    break;
+                case BoardSide.Bottom:
+                    dy = -1;
+                    break;
+                case BoardSide.Left:
+                    dx = -1;
+                    break;
+                case BoardSide.Right:
+                    dx = 1;
+                    break;
+            }
+
+            var touchesEdge = false;
+            foreach (var offset in block.Offsets)
+            {
+                var row = block.PivotCell.Row + offset.y;
+                var column = block.PivotCell.Column + offset.x;
+                var positionAlongDoor = dx == 0 ? column : row;
+                if (positionAlongDoor < door.Start || positionAlongDoor > door.End)
+                {
+                    return false;
+                }
+
+                if ((dx == -1 && column == 0) || (dx == 1 && column == Width - 1) ||
+                    (dy == -1 && row == 0) || (dy == 1 && row == Height - 1))
+                {
+                    touchesEdge = true;
+                }
+
+                var cell = GetCell(row + dy, column + dx);
+                while (cell != null)
+                {
+                    if (cell.Block != null && cell.Block != block)
+                    {
+                        return false;
+                    }
+
+                    row += dy;
+                    column += dx;
+                    cell = GetCell(row + dy, column + dx);
+                }
+            }
+
+            return touchesEdge;
         }
 
         public bool EmplaceBlock(Block block, int pivotRow, int pivotColumn)
