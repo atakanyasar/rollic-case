@@ -10,6 +10,8 @@ namespace Gameplay
         [SerializeField] private LevelData LevelData;
 
         [SerializeField] private BlockView BlockPrefab;
+        [SerializeField] private GridView GridView;
+        [SerializeField] private WallView WallView;
 
         [SerializeField] private Camera BoardCamera;
 
@@ -37,6 +39,8 @@ namespace Gameplay
             CurrentLevel = new Level(LevelData);
 
             var cellSize = BlockPrefab.LogicalCellSize;
+            GridView.Prepare(CurrentLevel.Grid, cellSize);
+            WallView.Prepare(CurrentLevel.Grid, cellSize);
             var origin = new Vector3(
                 -(CurrentLevel.Grid.Width - 1) * cellSize * 0.5f,
                 -(CurrentLevel.Grid.Height - 1) * cellSize * 0.5f,
@@ -62,8 +66,8 @@ namespace Gameplay
         private void FitBoardCamera()
         {
             var cellSize = BlockPrefab.LogicalCellSize;
-            var width = CurrentLevel.Grid.Width * cellSize * Mathf.Abs(transform.lossyScale.x);
-            var height = CurrentLevel.Grid.Height * cellSize * Mathf.Abs(transform.lossyScale.y);
+            var width = (CurrentLevel.Grid.Width + 2) * cellSize * Mathf.Abs(transform.lossyScale.x);
+            var height = (CurrentLevel.Grid.Height + 2) * cellSize * Mathf.Abs(transform.lossyScale.y);
             _cameraAspect = BoardCamera.aspect;
 
             BoardCamera.orthographicSize = Mathf.Max(

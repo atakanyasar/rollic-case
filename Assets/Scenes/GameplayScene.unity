@@ -1498,6 +1498,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1900000002}
   - component: {fileID: 1900000003}
+  - component: {fileID: 1900000004}
+  - component: {fileID: 1900000005}
   m_Layer: 0
   m_Name: LevelController
   m_TagString: Untagged
@@ -1534,8 +1536,50 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   LevelData: {fileID: 11400000, guid: 852ad3aa0b42407fae6994250c4e510a, type: 2}
   BlockPrefab: {fileID: 1117608207756387415, guid: f1d3bba0f166046ee94e9414ef95b82c, type: 3}
+  GridView: {fileID: 1900000004}
+  WallView: {fileID: 1900000005}
   BoardCamera: {fileID: 30310025}
   BoardScreenFraction: {x: 0.7, y: 0.6}
+--- !u!114 &1900000004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ac8f8914e284abd8fe2b5e1e1b9320d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GroundMesh: {fileID: 9127120572191758296, guid: 5dd0128caf0174f21bdb36b7eb2398b1, type: 3}
+  GroundMaterial: {fileID: 2100000, guid: c371ee5e64774e20a08c663d6ac87891, type: 2}
+  BaseMaterial: {fileID: 2100000, guid: 424773ea77b846ca9605dda6a741f324, type: 2}
+  GroundDepth: 1
+  BaseDepthOffset: 0.1
+  CellFill: 0.98
+--- !u!114 &1900000005
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900000001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c04a8c0692b4ba9b40b43bd77e8d413, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  WallMesh: {fileID: -1660384031183063813, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
+  CornerMesh: {fileID: 4375017163354872511, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
+  DoorMesh: {fileID: 4425508537108344529, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
+  WallMaterial: {fileID: 2100000, guid: c371ee5e64774e20a08c663d6ac87891, type: 2}
+  MeshCellSize: 2
+  WallDepth: 0
+  RedMaterial: {fileID: 2100000, guid: bb747866109b64cf898042a72b662dd8, type: 2}
+  BlueMaterial: {fileID: 2100000, guid: 2598dbe51a6844b2b24a3d5eb3613e96, type: 2}
+  YellowMaterial: {fileID: 2100000, guid: c1f1f6668b5a4f9185bac91ed525b3f7, type: 2}
+  GreenMaterial: {fileID: 2100000, guid: bec4fc1af72842d480ba7e84c6c916f0, type: 2}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
