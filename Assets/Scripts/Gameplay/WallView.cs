@@ -11,7 +11,7 @@ namespace Gameplay
         [SerializeField] private Material WallMaterial;
         [SerializeField] private float MeshCellSize;
         [SerializeField] private float WallDepth;
-        
+
         [SerializeField] private Material RedMaterial;
         [SerializeField] private Material BlueMaterial;
         [SerializeField] private Material YellowMaterial;
@@ -34,110 +34,111 @@ namespace Gameplay
                 -(grid.Height - 1) * cellSize * 0.5f,
                 WallDepth);
 
-            for (var column = 0; column < grid.Width; column++)
-            {
-                if (!HasDoor(grid, BoardSide.Top, column))
-                {
-                    CreatePart(WallMesh, WallMaterial, $"Top_{column}_left", column - 0.25f, grid.Height - 0.25f, 90f, origin, cellSize);
-                    CreatePart(WallMesh, WallMaterial, $"Top_{column}_right", column + 0.25f, grid.Height - 0.25f, 90f, origin, cellSize);
-                }
-                else
-                {
-                    var door = GetDoor(grid, BoardSide.Top, column);
-                    var material = GetDoorMaterial(door);
-                    
-                    var part = CreatePart(DoorMesh, material, $"Top_{column}_door", column, grid.Height - 0.25f, 90f, origin, cellSize);
-                    part.transform.localEulerAngles += new Vector3(90f, 0f, 0f);
-                }
-                if (!HasDoor(grid, BoardSide.Bottom, column))
-                {
-                    CreatePart(WallMesh, WallMaterial, $"Bottom_{column}_left", column - 0.25f, -0.75f, 270f, origin, cellSize);
-                    CreatePart(WallMesh, WallMaterial, $"Bottom_{column}_right", column + 0.25f, -0.75f, 270f, origin, cellSize);
-                }
-                else
-                {
-                    var door = GetDoor(grid, BoardSide.Bottom, column);
-                    var material = GetDoorMaterial(door);
-                    
-                    var part = CreatePart(DoorMesh, material, $"Bottom_{column}_door", column, -0.75f, 270f, origin, cellSize);
-                    part.transform.localEulerAngles += new Vector3(90f, 0f, 0f);
-                }
-            }
+            CreateSide(grid, BoardSide.Top, origin, cellSize);
+            CreateSide(grid, BoardSide.Bottom, origin, cellSize);
+            CreateSide(grid, BoardSide.Right, origin, cellSize);
+            CreateSide(grid, BoardSide.Left, origin, cellSize);
 
-            for (var row = 0; row < grid.Height; row++)
-            {
-                if (!HasDoor(grid, BoardSide.Right, row))
-                {
-                    CreatePart(WallMesh, WallMaterial, $"Right_{row}_top", grid.Width - 0.25f, row + 0.25f, 0f, origin, cellSize);
-                    CreatePart(WallMesh, WallMaterial, $"Right_{row}_bottom", grid.Width - 0.25f, row - 0.25f, 0f, origin, cellSize);
-                }
-                else
-                {
-                    var door = GetDoor(grid, BoardSide.Right, row);
-                    var material = GetDoorMaterial(door);
-                    
-                    var part = CreatePart(DoorMesh, material, $"Right_{row}_door", grid.Width - 0.25f, row, 0f, origin, cellSize);
-                    part.transform.localEulerAngles += new Vector3(-90f, -90f, -90f);
-                }
-                if (!HasDoor(grid, BoardSide.Left, row))
-                {
-                    CreatePart(WallMesh, WallMaterial, $"Left_{row}_top", -0.75f, row + 0.25f, 180f, origin, cellSize);
-                    CreatePart(WallMesh, WallMaterial, $"Left_{row}_bottom", -0.75f, row - 0.25f, 180f, origin, cellSize);
-                }
-                else
-                {
-                    var door = GetDoor(grid, BoardSide.Left, row);
-                    var material = GetDoorMaterial(door);
-                    
-                    var part = CreatePart(DoorMesh, material, $"Left_{row}_door", -0.75f, row, 180f, origin, cellSize);
-                    part.transform.localEulerAngles += new Vector3(90f, 90f, -90f);
-                }
-            }
+            CreatePart(CornerMesh, WallMaterial, "TopRight", new Vector2(grid.Width - 0.25f, grid.Height - 0.25f), 0f, origin, cellSize);
+            CreatePart(CornerMesh, WallMaterial, "TopLeft", new Vector2(-0.75f, grid.Height - 0.25f), 90f, origin, cellSize);
+            CreatePart(CornerMesh, WallMaterial, "BottomLeft", new Vector2(-0.75f, -0.75f), 180f, origin, cellSize);
+            CreatePart(CornerMesh, WallMaterial, "BottomRight", new Vector2(grid.Width - 0.25f, -0.75f), 270f, origin, cellSize);
 
-            CreatePart(CornerMesh, WallMaterial, "TopRight", grid.Width - 0.25f, grid.Height - 0.25f, 0f, origin, cellSize);
-            CreatePart(CornerMesh, WallMaterial, "TopLeft", -0.75f, grid.Height - 0.25f, 90f, origin, cellSize);
-            CreatePart(CornerMesh, WallMaterial, "BottomLeft", -0.75f, -0.75f, 180f, origin, cellSize);
-            CreatePart(CornerMesh, WallMaterial, "BottomRight", grid.Width - 0.25f, -0.75f, 270f, origin, cellSize);
-            
             foreach (var door in grid.Doors)
-            { 
-                var arrow = Instantiate(DoorArrow, _wallRoot.transform, false);
-                if (door.Side == BoardSide.Top)
-                {
-                    arrow.transform.localPosition = origin + new Vector3((door.Start + door.End) / 2f * cellSize, (grid.Height - 0.25f) * cellSize, -2f);
-                    arrow.transform.localEulerAngles += new Vector3(-90f, 90f, 90f);
-                }
-                else if (door.Side == BoardSide.Bottom)
-                {
-                    arrow.transform.localPosition = origin + new Vector3((door.Start + door.End) / 2f * cellSize, -0.75f * cellSize, -2f);
-                    arrow.transform.localEulerAngles += new Vector3(90f, 90f, 90f);
-                }
-                else if (door.Side == BoardSide.Right)
-                {
-                    arrow.transform.localPosition = origin + new Vector3((grid.Width - 0.25f) * cellSize, (door.Start + door.End) / 2f * cellSize, -2f);
-                    arrow.transform.localEulerAngles += new Vector3(0f, 90f, 90f);
-                }
-                else if (door.Side == BoardSide.Left)
-                {
-                    arrow.transform.localPosition = origin + new Vector3(-0.75f * cellSize, (door.Start + door.End) / 2f * cellSize, -2f);
-                    arrow.transform.localEulerAngles += new Vector3(180F, 90f, 90f);
-                }
+            {
+                CreateArrow(grid, door, origin, cellSize);
             }
         }
 
-        private bool HasDoor(Grid grid, BoardSide side, int position)
+        private void CreateSide(Grid grid, BoardSide side, Vector3 origin, float cellSize)
         {
-            foreach (var door in grid.Doors)
+            var horizontal = side == BoardSide.Top || side == BoardSide.Bottom;
+            var length = horizontal ? grid.Width : grid.Height;
+            var offset = horizontal ? new Vector2(0.25f, 0f) : new Vector2(0f, 0.25f);
+            var angle = GetSideAngle(side);
+
+            for (var index = 0; index < length; index++)
             {
-                if (door.Side == side && position >= door.Start && position <= door.End)
+                var position = GetSidePosition(grid, side, index);
+                var door = GetDoor(grid, side, index);
+                if (door == null)
                 {
-                    return true;
+                    if (horizontal)
+                    {
+                        CreatePart(WallMesh, WallMaterial, $"{side}_{index}_left", position - offset, angle, origin, cellSize);
+                        CreatePart(WallMesh, WallMaterial, $"{side}_{index}_right", position + offset, angle, origin, cellSize);
+                    }
+                    else
+                    {
+                        CreatePart(WallMesh, WallMaterial, $"{side}_{index}_top", position + offset, angle, origin, cellSize);
+                        CreatePart(WallMesh, WallMaterial, $"{side}_{index}_bottom", position - offset, angle, origin, cellSize);
+                    }
+                }
+                else
+                {
+                    var part = CreatePart(DoorMesh, GetDoorMaterial(door), $"{side}_{index}_door", position, angle, origin, cellSize);
+                    part.transform.localEulerAngles += GetDoorRotationOffset(side);
                 }
             }
-
-            return false;
         }
-        
+
+        private void CreateArrow(Grid grid, Door door, Vector3 origin, float cellSize)
+        {
+            var position = GetSidePosition(grid, door.Side, (door.Start + door.End) * 0.5f);
+            var arrow = Instantiate(DoorArrow, _wallRoot.transform, false);
+            arrow.transform.localPosition = origin + new Vector3(position.x * cellSize, position.y * cellSize, -2f);
+            arrow.transform.localEulerAngles += GetArrowRotationOffset(door.Side);
+            arrow.transform.localScale = DoorArrow.transform.localScale * (cellSize / MeshCellSize);
+        }
+
+        private Vector2 GetSidePosition(Grid grid, BoardSide side, float index)
+        {
+            return side switch
+            {
+                BoardSide.Top => new Vector2(index, grid.Height - 0.25f),
+                BoardSide.Bottom => new Vector2(index, -0.75f),
+                BoardSide.Right => new Vector2(grid.Width - 0.25f, index),
+                BoardSide.Left => new Vector2(-0.75f, index),
+                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+        }
+
+        private float GetSideAngle(BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Top => 90f,
+                BoardSide.Bottom => 270f,
+                BoardSide.Right => 0f,
+                BoardSide.Left => 180f,
+                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+        }
+
+        private Vector3 GetDoorRotationOffset(BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Top => new Vector3(90f, 0f, 0f),
+                BoardSide.Bottom => new Vector3(90f, 0f, 0f),
+                BoardSide.Right => new Vector3(-90f, -90f, -90f),
+                BoardSide.Left => new Vector3(90f, 90f, -90f),
+                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+        }
+
+        private Vector3 GetArrowRotationOffset(BoardSide side)
+        {
+            return side switch
+            {
+                BoardSide.Top => new Vector3(-90f, 90f, 90f),
+                BoardSide.Bottom => new Vector3(90f, 90f, 90f),
+                BoardSide.Right => new Vector3(0f, 90f, 90f),
+                BoardSide.Left => new Vector3(180f, 90f, 90f),
+                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
+            };
+        }
+
         private Door GetDoor(Grid grid, BoardSide side, int position)
         {
             foreach (var door in grid.Doors)
@@ -150,7 +151,7 @@ namespace Gameplay
 
             return null;
         }
-        
+
         private Material GetDoorMaterial(Door door)
         {
             return door.Color switch
@@ -163,18 +164,18 @@ namespace Gameplay
             };
         }
 
-        private GameObject CreatePart(MeshRenderer mesh, Material material, string name, float column, float row, float angle, Vector3 origin, float cellSize)
+        private GameObject CreatePart(MeshRenderer source, Material material, string name,
+            Vector2 position, float angle, Vector3 origin, float cellSize)
         {
-            mesh.material = material;
-            
-            var part = Instantiate(mesh.gameObject, _wallRoot.transform, false);
+            var part = Instantiate(source, _wallRoot.transform, false);
             part.name = name;
-            part.transform.localPosition = origin + new Vector3(column * cellSize, row * cellSize, 0f);
+            part.transform.localPosition = origin + new Vector3(position.x * cellSize, position.y * cellSize, 0f);
             part.transform.localRotation = Quaternion.AngleAxis(angle, Vector3.forward)
                 * Quaternion.Euler(90f, 0f, 0f);
             part.transform.localScale = Vector3.one * (cellSize / MeshCellSize);
+            part.sharedMaterial = material;
 
-            return part;
+            return part.gameObject;
         }
     }
 }
