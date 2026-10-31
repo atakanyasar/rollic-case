@@ -7,6 +7,7 @@ namespace Gameplay
         [SerializeField] private MeshRenderer WallMesh;
         [SerializeField] private MeshRenderer CornerMesh;
         [SerializeField] private MeshRenderer DoorMesh;
+        [SerializeField] private MeshRenderer DoorArrow;
         [SerializeField] private Material WallMaterial;
         [SerializeField] private float MeshCellSize;
         [SerializeField] private float WallDepth;
@@ -97,6 +98,31 @@ namespace Gameplay
             CreatePart(CornerMesh, WallMaterial, "TopLeft", -0.75f, grid.Height - 0.25f, 90f, origin, cellSize);
             CreatePart(CornerMesh, WallMaterial, "BottomLeft", -0.75f, -0.75f, 180f, origin, cellSize);
             CreatePart(CornerMesh, WallMaterial, "BottomRight", grid.Width - 0.25f, -0.75f, 270f, origin, cellSize);
+            
+            foreach (var door in grid.Doors)
+            { 
+                var arrow = Instantiate(DoorArrow, _wallRoot.transform, false);
+                if (door.Side == BoardSide.Top)
+                {
+                    arrow.transform.localPosition = origin + new Vector3((door.Start + door.End) / 2f * cellSize, (grid.Height - 0.25f) * cellSize, -2f);
+                    arrow.transform.localEulerAngles += new Vector3(-90f, 90f, 90f);
+                }
+                else if (door.Side == BoardSide.Bottom)
+                {
+                    arrow.transform.localPosition = origin + new Vector3((door.Start + door.End) / 2f * cellSize, -0.75f * cellSize, -2f);
+                    arrow.transform.localEulerAngles += new Vector3(90f, 90f, 90f);
+                }
+                else if (door.Side == BoardSide.Right)
+                {
+                    arrow.transform.localPosition = origin + new Vector3((grid.Width - 0.25f) * cellSize, (door.Start + door.End) / 2f * cellSize, -2f);
+                    arrow.transform.localEulerAngles += new Vector3(0f, 90f, 90f);
+                }
+                else if (door.Side == BoardSide.Left)
+                {
+                    arrow.transform.localPosition = origin + new Vector3(-0.75f * cellSize, (door.Start + door.End) / 2f * cellSize, -2f);
+                    arrow.transform.localEulerAngles += new Vector3(180F, 90f, 90f);
+                }
+            }
         }
 
         private bool HasDoor(Grid grid, BoardSide side, int position)

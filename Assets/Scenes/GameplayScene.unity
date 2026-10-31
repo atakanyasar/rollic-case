@@ -1573,6 +1573,7 @@ MonoBehaviour:
   WallMesh: {fileID: -1660384031183063813, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
   CornerMesh: {fileID: 4375017163354872511, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
   DoorMesh: {fileID: 4425508537108344529, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
+  DoorArrow: {fileID: -6759331133666085380, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
   WallMaterial: {fileID: 2100000, guid: c371ee5e64774e20a08c663d6ac87891, type: 2}
   MeshCellSize: 2
   WallDepth: 0
