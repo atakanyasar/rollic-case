@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 namespace Gameplay
@@ -6,38 +7,26 @@ namespace Gameplay
     public class BlockView : MonoBehaviour
     {
 
-        [SerializeField] private Material RedMaterial;
-        [SerializeField] private Material BlueMaterial;
-        [SerializeField] private Material YellowMaterial;
-        [SerializeField] private Material GreenMaterial;
-
         [SerializeField] private MeshRenderer Center;
         [SerializeField] private MeshRenderer Edge;
         [SerializeField] private MeshRenderer InnerCorner;
         [SerializeField] private MeshRenderer OuterCorner;
 
         [SerializeField] private float CellSize;
-        [SerializeField] private float ColliderDepth = 1f;
+        [SerializeField] private float ColliderDepth;
+        [SerializeField] private float ExitDuration;
 
         private readonly List<GameObject> _parts = new();
         private readonly List<Collider> _colliders = new();
         private GameObject _collidersRoot;
 
         public float LogicalCellSize => CellSize;
+        public float ExitAnimationDuration => ExitDuration;
         public Block Block { get; private set; }
         public IReadOnlyList<Collider> Colliders => _colliders;
 
-        public void Prepare(Block block)
+        public void Prepare(Block block, Material material)
         {
-            var material = block.Color switch
-            {
-                BlockColor.Red => RedMaterial,
-                BlockColor.Blue => BlueMaterial,
-                BlockColor.Yellow => YellowMaterial,
-                BlockColor.Green => GreenMaterial,
-                _ => throw new System.ArgumentOutOfRangeException(nameof(block.Color), block.Color, null)
-            };
-
             ClearParts();
             Block = block;
             CreateColliders();
@@ -69,6 +58,30 @@ namespace Gameplay
                 part.gameObject.SetActive(true);
                 _parts.Add(part.gameObject);
             }
+        }
+
+        public Sequence PlayExit(Vector3 alignedPosition, Vector2Int direction)
+        {
+            var min = int.MaxValue;
+            var max = int.MinValue;
+            foreach (var offset in Block.Offsets)
+            {
+                var projection = offset.x * direction.x + offset.y * direction.y;
+                min = Mathf.Min(min, projection);
+                max = Mathf.Max(max, projection);
+            }
+
+            var target = alignedPosition
+                + new Vector3(direction.x, direction.y, 0f) * ((max - min + 2) * CellSize);
+            var sequence = DOTween.Sequence();
+            sequence.Append(transform.DOLocalMove(alignedPosition, ExitDuration * 0.2f)
+                .SetEase(Ease.InOutSine));
+            sequence.Append(transform.DOLocalMove(target, ExitDuration * 0.8f)
+                .SetEase(Ease.InOutSine));
+            sequence.Insert(ExitDuration * 0.75f,
+                transform.DOScale(Vector3.zero, ExitDuration * 0.25f).SetEase(Ease.Linear));
+            sequence.SetLink(gameObject, LinkBehaviour.KillOnDisable);
+            return sequence;
         }
 
         private Dictionary<Vector2Int, (MeshRenderer Renderer, int Angle)> BuildLayout(List<Vector2Int> offsets)

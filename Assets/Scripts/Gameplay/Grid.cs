@@ -36,6 +36,11 @@ namespace Gameplay
 
         public bool CanMove(Block block, int dx, int dy)
         {
+            if (block.IsExiting)
+            {
+                return false;
+            }
+
             if (block?.PivotCell == null)
             {
                 return CanOccupy(block, dy, dx);
@@ -46,28 +51,13 @@ namespace Gameplay
 
         public bool CanExit(Block block, Door door)
         {
-            if (block.Color != door.Color)
+            if (block.IsExiting || block.Color != door.Color)
             {
                 return false;
             }
 
-            var dx = 0;
-            var dy = 0;
-            switch (door.Side)
-            {
-                case BoardSide.Top:
-                    dy = 1;
-                    break;
-                case BoardSide.Bottom:
-                    dy = -1;
-                    break;
-                case BoardSide.Left:
-                    dx = -1;
-                    break;
-                case BoardSide.Right:
-                    dx = 1;
-                    break;
-            }
+            var dx = door.Direction.x;
+            var dy = door.Direction.y;
 
             var touchesEdge = false;
             foreach (var offset in block.Offsets)
@@ -130,6 +120,16 @@ namespace Gameplay
 
             Place(block, row + dy, column + dx);
             return true;
+        }
+
+        public void RemoveBlock(Block block)
+        {
+            foreach (var offset in block.Offsets)
+            {
+                Cells[block.PivotCell.Row + offset.y, block.PivotCell.Column + offset.x].Block = null;
+            }
+
+            block.PivotCell = null;
         }
 
         private bool CanOccupy(Block block, int row, int column)

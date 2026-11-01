@@ -7,9 +7,9 @@ namespace Gameplay
         [SerializeField] private Mesh GroundMesh;
         [SerializeField] private Material GroundMaterial;
         [SerializeField] private Material BaseMaterial;
-        [SerializeField] private float GroundDepth = 1f;
-        [SerializeField] private float BaseDepthOffset = 0.1f;
-        [SerializeField] private float CellFill = 0.98f;
+        [SerializeField] private float GroundDepth;
+        [SerializeField] private float BaseDepthOffset;
+        [SerializeField] private float CellFill;
 
         private GameObject _groundRoot;
 

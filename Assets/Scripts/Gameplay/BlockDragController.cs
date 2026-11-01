@@ -10,6 +10,7 @@ namespace Gameplay
         [SerializeField] private LevelController LevelController;
         [SerializeField] private Camera BoardCamera;
         [SerializeField] private float SnapDuration;
+        [SerializeField] private float ExitThreshold;
 
         private readonly List<RaycastResult> _uiHits = new();
         private BlockView _selectedBlock;
@@ -131,9 +132,26 @@ namespace Gameplay
             }
 
             var position = LevelController.transform.InverseTransformPoint(ray.GetPoint(distance));
-            _movement.MoveTo((position - _grabOffset - _boardOrigin) / _selectedBlock.LogicalCellSize);
+            Vector2 target = (position - _grabOffset - _boardOrigin) / _selectedBlock.LogicalCellSize;
+            _movement.MoveTo(target);
             _selectedBlock.transform.localPosition = _boardOrigin
                 + new Vector3(_movement.Position.x, _movement.Position.y, 0f) * _selectedBlock.LogicalCellSize;
+
+            var pivot = _selectedBlock.Block.PivotCell;
+            var intent = target - new Vector2(pivot.Column, pivot.Row);
+            if (Mathf.Max(Mathf.Abs(intent.x), Mathf.Abs(intent.y)) < ExitThreshold)
+            {
+                return;
+            }
+
+            var direction = Mathf.Abs(intent.x) >= Mathf.Abs(intent.y)
+                ? new Vector2Int(System.Math.Sign(intent.x), 0)
+                : new Vector2Int(0, System.Math.Sign(intent.y));
+            if (LevelController.TryExit(_selectedBlock, direction))
+            {
+                _selectedBlock = null;
+                _movement = null;
+            }
         }
 
         private void EndDrag()

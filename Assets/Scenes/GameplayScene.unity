@@ -207,13 +207,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 30310023}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -10}
+  m_LocalRotation: {x: -0.043577872, y: 0.043577872, z: 0.001902651, w: 0.99809736}
+  m_LocalPosition: {x: -0.87488663, y: -0.87822855, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -5, y: 5, z: 0}
 --- !u!1 &53843968
 GameObject:
   m_ObjectHideFlags: 0
@@ -1541,6 +1541,14 @@ MonoBehaviour:
   WallView: {fileID: 1900000005}
   BoardCamera: {fileID: 30310025}
   BoardScreenFraction: {x: 0.7, y: 0.6}
+  BoardMaskPadding: 0.5
+  BlockMaterials:
+    RedMaterial: {fileID: 2100000, guid: bb747866109b64cf898042a72b662dd8, type: 2}
+    BlueMaterial: {fileID: 2100000, guid: 2598dbe51a6844b2b24a3d5eb3613e96, type: 2}
+    YellowMaterial: {fileID: 2100000, guid: c1f1f6668b5a4f9185bac91ed525b3f7, type: 2}
+    GreenMaterial: {fileID: 2100000, guid: bec4fc1af72842d480ba7e84c6c916f0, type: 2}
+    BoardMaskShader: {fileID: 4800000, guid: f4f72d21b6fd492cb2bbefc54092c9f3, type: 3}
+    BoardMask: {fileID: 2800000, guid: 3916729f504e045d4ad17e30edbf5028, type: 3}
 --- !u!114 &1900000004
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1573,8 +1581,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   WallMesh: {fileID: -1660384031183063813, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
   CornerMesh: {fileID: 4375017163354872511, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
-  DoorMesh: {fileID: 4425508537108344529, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
-  DoorArrow: {fileID: -6759331133666085380, guid: 00b8f26a7da064585bb3458cb2705ac8, type: 3}
+  DoorPrefab: {fileID: 1002, guid: 874417b376a146458f669a3f8ff31643, type: 3}
   WallMaterial: {fileID: 2100000, guid: c371ee5e64774e20a08c663d6ac87891, type: 2}
   MeshCellSize: 2
   WallDepth: 0
@@ -1597,6 +1604,7 @@ MonoBehaviour:
   LevelController: {fileID: 1900000003}
   BoardCamera: {fileID: 30310025}
   SnapDuration: 0.02
+  ExitThreshold: 0.25
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

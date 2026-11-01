@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Gameplay
@@ -6,8 +7,7 @@ namespace Gameplay
     {
         [SerializeField] private MeshRenderer WallMesh;
         [SerializeField] private MeshRenderer CornerMesh;
-        [SerializeField] private MeshRenderer DoorMesh;
-        [SerializeField] private MeshRenderer DoorArrow;
+        [SerializeField] private DoorView DoorPrefab;
         [SerializeField] private Material WallMaterial;
         [SerializeField] private float MeshCellSize;
         [SerializeField] private float WallDepth;
@@ -18,9 +18,11 @@ namespace Gameplay
         [SerializeField] private Material GreenMaterial;
 
         private GameObject _wallRoot;
+        private readonly Dictionary<Door, DoorView> _doorViews = new();
 
         public void Prepare(Grid grid, float cellSize)
         {
+            _doorViews.Clear();
             if (_wallRoot != null)
             {
                 _wallRoot.SetActive(false);
@@ -34,6 +36,16 @@ namespace Gameplay
                 -(grid.Height - 1) * cellSize * 0.5f,
                 WallDepth);
 
+            foreach (var door in grid.Doors)
+            {
+                var position = GetSidePosition(grid, door.Side, (door.Start + door.End) * 0.5f);
+                var view = Instantiate(DoorPrefab, _wallRoot.transform, false);
+                view.name = $"Door_{door.Side}_{door.Start}_{door.End}";
+                view.transform.localPosition = origin + new Vector3(position.x * cellSize, position.y * cellSize, 0f);
+                view.Prepare(door, GetDoorMaterial(door), cellSize);
+                _doorViews.Add(door, view);
+            }
+
             CreateSide(grid, BoardSide.Top, origin, cellSize);
             CreateSide(grid, BoardSide.Bottom, origin, cellSize);
             CreateSide(grid, BoardSide.Right, origin, cellSize);
@@ -43,11 +55,11 @@ namespace Gameplay
             CreatePart(CornerMesh, WallMaterial, "TopLeft", new Vector2(-0.75f, grid.Height - 0.25f), 90f, origin, cellSize);
             CreatePart(CornerMesh, WallMaterial, "BottomLeft", new Vector2(-0.75f, -0.75f), 180f, origin, cellSize);
             CreatePart(CornerMesh, WallMaterial, "BottomRight", new Vector2(grid.Width - 0.25f, -0.75f), 270f, origin, cellSize);
+        }
 
-            foreach (var door in grid.Doors)
-            {
-                CreateArrow(grid, door, origin, cellSize);
-            }
+        public DoorView GetDoorView(Door door)
+        {
+            return _doorViews[door];
         }
 
         private void CreateSide(Grid grid, BoardSide side, Vector3 origin, float cellSize)
@@ -74,21 +86,7 @@ namespace Gameplay
                         CreatePart(WallMesh, WallMaterial, $"{side}_{index}_bottom", position - offset, angle, origin, cellSize);
                     }
                 }
-                else
-                {
-                    var part = CreatePart(DoorMesh, GetDoorMaterial(door), $"{side}_{index}_door", position, angle, origin, cellSize);
-                    part.transform.localEulerAngles += GetDoorRotationOffset(side);
-                }
             }
-        }
-
-        private void CreateArrow(Grid grid, Door door, Vector3 origin, float cellSize)
-        {
-            var position = GetSidePosition(grid, door.Side, (door.Start + door.End) * 0.5f);
-            var arrow = Instantiate(DoorArrow, _wallRoot.transform, false);
-            arrow.transform.localPosition = origin + new Vector3(position.x * cellSize, position.y * cellSize, -2f);
-            arrow.transform.localEulerAngles += GetArrowRotationOffset(door.Side);
-            arrow.transform.localScale = DoorArrow.transform.localScale * (cellSize / MeshCellSize);
         }
 
         private Vector2 GetSidePosition(Grid grid, BoardSide side, float index)
@@ -111,30 +109,6 @@ namespace Gameplay
                 BoardSide.Bottom => 270f,
                 BoardSide.Right => 0f,
                 BoardSide.Left => 180f,
-                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
-            };
-        }
-
-        private Vector3 GetDoorRotationOffset(BoardSide side)
-        {
-            return side switch
-            {
-                BoardSide.Top => new Vector3(90f, 0f, 0f),
-                BoardSide.Bottom => new Vector3(90f, 0f, 0f),
-                BoardSide.Right => new Vector3(-90f, -90f, -90f),
-                BoardSide.Left => new Vector3(90f, 90f, -90f),
-                _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
-            };
-        }
-
-        private Vector3 GetArrowRotationOffset(BoardSide side)
-        {
-            return side switch
-            {
-                BoardSide.Top => new Vector3(-90f, 90f, 90f),
-                BoardSide.Bottom => new Vector3(90f, 90f, 90f),
-                BoardSide.Right => new Vector3(0f, 90f, 90f),
-                BoardSide.Left => new Vector3(180f, 90f, 90f),
                 _ => throw new System.ArgumentOutOfRangeException(nameof(side), side, null)
             };
         }

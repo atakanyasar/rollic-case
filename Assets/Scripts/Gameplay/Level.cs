@@ -10,6 +10,7 @@ namespace Gameplay
         public int TimeLimitSeconds { get; }
         public Grid Grid { get; }
         public Dictionary<int, Block> Blocks { get; } = new();
+        public bool IsCompleted => Blocks.Count == 0;
 
         public Level(LevelData data)
         {
@@ -27,6 +28,36 @@ namespace Gameplay
             foreach (var doorData in data.Doors)
             {
                 Grid.Doors.Add(new Door(doorData.Color, doorData.Side, doorData.Start, doorData.End));
+            }
+        }
+
+        public bool TryBeginExit(Block block, Vector2Int direction, out Door exitDoor)
+        {
+            foreach (var door in Grid.Doors)
+            {
+                if (door.Direction == direction && Grid.CanExit(block, door))
+                {
+                    block.IsExiting = true;
+                    exitDoor = door;
+                    return true;
+                }
+            }
+
+            exitDoor = null;
+            return false;
+        }
+
+        public void RemoveBlock(Block block)
+        {
+            foreach (var entry in Blocks)
+            {
+                if (entry.Value == block)
+                {
+                    Grid.RemoveBlock(block);
+                    block.IsExiting = false;
+                    Blocks.Remove(entry.Key);
+                    return;
+                }
             }
         }
     }

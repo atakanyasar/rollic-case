@@ -1,4 +1,7 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using Gameplay.Data;
 using UnityEngine;
 
@@ -16,12 +19,14 @@ namespace Gameplay
         [SerializeField] private Camera BoardCamera;
 
         [SerializeField] private Vector2 BoardScreenFraction;
+        [SerializeField] private float BoardMaskPadding;
+        [SerializeField] private BoardBlockMaterials BlockMaterials;
 
         private readonly List<BlockView> _blockViews = new();
         private readonly Dictionary<Collider, BlockView> _blockViewsByCollider = new();
-        private float _cameraAspect;
 
         public Level CurrentLevel { get; private set; }
+        public event Action LevelCompleted;
 
         private void Start()
         {
@@ -30,6 +35,7 @@ namespace Gameplay
         
         public void Initialize()
         {
+            StopAllCoroutines();
             _blockViewsByCollider.Clear();
             foreach (var view in _blockViews)
             {
@@ -41,6 +47,10 @@ namespace Gameplay
             CurrentLevel = new Level(LevelData);
 
             var cellSize = BlockPrefab.LogicalCellSize;
+            BlockMaterials.Prepare(transform.worldToLocalMatrix,
+                new Vector2(
+                    (CurrentLevel.Grid.Width + BoardMaskPadding * 2f) * cellSize,
+                    (CurrentLevel.Grid.Height + BoardMaskPadding * 2f) * cellSize));
             GridView.Prepare(CurrentLevel.Grid, cellSize);
             WallView.Prepare(CurrentLevel.Grid, cellSize);
             var origin = new Vector3(
@@ -58,7 +68,7 @@ namespace Gameplay
                     block.PivotCell.Row * cellSize,
                     0f);
                 view.transform.localRotation = Quaternion.identity;
-                view.Prepare(block);
+                view.Prepare(block, BlockMaterials.Get(block.Color));
                 _blockViews.Add(view);
                 foreach (var collider in view.Colliders)
                 {
@@ -74,22 +84,68 @@ namespace Gameplay
             return _blockViewsByCollider.TryGetValue(collider, out view);
         }
 
+        public bool TryExit(BlockView view, Vector2Int direction)
+        {
+            if (!CurrentLevel.TryBeginExit(view.Block, direction, out var door))
+            {
+                return false;
+            }
+
+            foreach (var collider in view.Colliders)
+            {
+                collider.enabled = false;
+                _blockViewsByCollider.Remove(collider);
+            }
+            StartCoroutine(ExitBlock(view, door));
+            return true;
+        }
+
+        private IEnumerator ExitBlock(BlockView view, Door door)
+        {
+            var alignedPosition = GetBlockPosition(view);
+            var doorView = WallView.GetDoorView(door);
+            doorView.BeginExit(view.ExitAnimationDuration);
+            yield return view.PlayExit(alignedPosition, door.Direction).WaitForCompletion();
+            doorView.EndExit(view.ExitAnimationDuration);
+
+            CurrentLevel.RemoveBlock(view.Block);
+            _blockViews.Remove(view);
+            view.gameObject.SetActive(false);
+            Destroy(view.gameObject);
+            if (CurrentLevel.IsCompleted)
+            {
+                LevelCompleted?.Invoke();
+            }
+        }
+
+        private Vector3 GetBlockPosition(BlockView view)
+        {
+            var grid = CurrentLevel.Grid;
+            return new Vector3(
+                view.Block.PivotCell.Column - (grid.Width - 1) * 0.5f,
+                view.Block.PivotCell.Row - (grid.Height - 1) * 0.5f,
+                0f) * view.LogicalCellSize;
+        }
+
+        private void OnDestroy()
+        {
+            BlockMaterials.Dispose();
+        }
+
         private void FitBoardCamera()
         {
             var cellSize = BlockPrefab.LogicalCellSize;
             var width = (CurrentLevel.Grid.Width + 2) * cellSize * Mathf.Abs(transform.lossyScale.x);
             var height = (CurrentLevel.Grid.Height + 2) * cellSize * Mathf.Abs(transform.lossyScale.y);
-            _cameraAspect = BoardCamera.aspect;
+            var cameraAspect = BoardCamera.aspect;
 
             BoardCamera.orthographicSize = Mathf.Max(
-                width / (2f * _cameraAspect * BoardScreenFraction.x),
+                width / (2f * cameraAspect * BoardScreenFraction.x),
                 height / (2f * BoardScreenFraction.y));
 
-            var cameraPosition = BoardCamera.transform.position;
-            BoardCamera.transform.position = new Vector3(
-                transform.position.x,
-                transform.position.y,
-                cameraPosition.z);
+            var cameraTransform = BoardCamera.transform;
+            var distance = (transform.position.z - cameraTransform.position.z) / cameraTransform.forward.z;
+            cameraTransform.position = transform.position - cameraTransform.forward * distance;
         }
     }
 }
