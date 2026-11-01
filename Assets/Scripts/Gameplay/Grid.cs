@@ -10,7 +10,7 @@ namespace Gameplay
         public List<Door> Doors { get; } = new();
 
 
-        public Grid(int width = 8, int height = 8)
+        public Grid(int width, int height)
         {
             Width = width;
             Height = height;

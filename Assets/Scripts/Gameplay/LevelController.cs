@@ -18,6 +18,7 @@ namespace Gameplay
         [SerializeField] private Vector2 BoardScreenFraction;
 
         private readonly List<BlockView> _blockViews = new();
+        private readonly Dictionary<Collider, BlockView> _blockViewsByCollider = new();
         private float _cameraAspect;
 
         public Level CurrentLevel { get; private set; }
@@ -29,6 +30,7 @@ namespace Gameplay
         
         public void Initialize()
         {
+            _blockViewsByCollider.Clear();
             foreach (var view in _blockViews)
             {
                 view.gameObject.SetActive(false);
@@ -58,9 +60,18 @@ namespace Gameplay
                 view.transform.localRotation = Quaternion.identity;
                 view.Prepare(block);
                 _blockViews.Add(view);
+                foreach (var collider in view.Colliders)
+                {
+                    _blockViewsByCollider.Add(collider, view);
+                }
             }
 
             FitBoardCamera();
+        }
+
+        public bool TryGetBlockView(Collider collider, out BlockView view)
+        {
+            return _blockViewsByCollider.TryGetValue(collider, out view);
         }
 
         private void FitBoardCamera()

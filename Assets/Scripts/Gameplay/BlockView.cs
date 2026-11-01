@@ -7,26 +7,25 @@ namespace Gameplay
     {
 
         [SerializeField] private Material RedMaterial;
-
         [SerializeField] private Material BlueMaterial;
-
         [SerializeField] private Material YellowMaterial;
-
         [SerializeField] private Material GreenMaterial;
 
         [SerializeField] private MeshRenderer Center;
-
         [SerializeField] private MeshRenderer Edge;
-
         [SerializeField] private MeshRenderer InnerCorner;
-
         [SerializeField] private MeshRenderer OuterCorner;
 
         [SerializeField] private float CellSize;
+        [SerializeField] private float ColliderDepth = 1f;
 
         private readonly List<GameObject> _parts = new();
+        private readonly List<Collider> _colliders = new();
+        private GameObject _collidersRoot;
 
         public float LogicalCellSize => CellSize;
+        public Block Block { get; private set; }
+        public IReadOnlyList<Collider> Colliders => _colliders;
 
         public void Prepare(Block block)
         {
@@ -40,6 +39,8 @@ namespace Gameplay
             };
 
             ClearParts();
+            Block = block;
+            CreateColliders();
 
             var layout = BuildLayout(block.Offsets);
             var spacing = CellSize * 0.5f;
@@ -159,6 +160,27 @@ namespace Gameplay
             }
 
             return layout;
+        }
+
+        private void CreateColliders()
+        {
+            _colliders.Clear();
+            if (_collidersRoot != null)
+            {
+                _collidersRoot.SetActive(false);
+                Destroy(_collidersRoot);
+            }
+
+            _collidersRoot = new GameObject("HitArea");
+            _collidersRoot.layer = gameObject.layer;
+            _collidersRoot.transform.SetParent(transform, false);
+            foreach (var offset in Block.Offsets)
+            {
+                var collider = _collidersRoot.AddComponent<BoxCollider>();
+                collider.center = new Vector3(offset.x * CellSize, offset.y * CellSize, 0f);
+                collider.size = new Vector3(CellSize, CellSize, ColliderDepth);
+                _colliders.Add(collider);
+            }
         }
 
         private void ClearParts()

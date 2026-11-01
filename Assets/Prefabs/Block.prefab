@@ -53,3 +53,4 @@ MonoBehaviour:
   InnerCorner: {fileID: 4314469343302689482, guid: 8a50f4f09a6774ae5b04d5fd695ef625, type: 3}
   OuterCorner: {fileID: 4082426468845745548, guid: 8a50f4f09a6774ae5b04d5fd695ef625, type: 3}
   CellSize: 2
+  ColliderDepth: 1
