@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using Gameplay.Data;
 using UnityEngine;
+using UI;
 
 namespace Gameplay
 {
@@ -17,6 +18,9 @@ namespace Gameplay
         [SerializeField] private WallView WallView;
 
         [SerializeField] private Camera BoardCamera;
+        [SerializeField] private TimerView TimerView;
+        [SerializeField] private LoseWindow LoseWindow;
+        [SerializeField] private BlockDragController DragController;
 
         [SerializeField] private Vector2 BoardScreenFraction;
         [SerializeField] private float BoardMaskPadding;
@@ -24,6 +28,9 @@ namespace Gameplay
 
         private readonly List<BlockView> _blockViews = new();
         private readonly Dictionary<Collider, BlockView> _blockViewsByCollider = new();
+
+        private LevelTimer _timer;
+        private bool _isFinished;
 
         public Level CurrentLevel { get; private set; }
         public event Action LevelCompleted;
@@ -33,6 +40,34 @@ namespace Gameplay
             Initialize();
         }
         
+        private void Update()
+        {
+            if (_isFinished)
+            {
+                return;
+            }
+
+            _timer.Tick(Time.deltaTime);
+            TimerView.SetSeconds(Mathf.CeilToInt(_timer.RemainingSeconds));
+            if (_timer.IsExpired)
+            {
+                _isFinished = true;
+                DragController.enabled = false;
+                Time.timeScale = 0f;
+                LoseWindow.Show();
+            }
+        }
+
+        public void PauseTimer()
+        {
+            _timer.Pause();
+        }
+
+        public void ResumeTimer()
+        {
+            _timer.Resume();
+        }
+
         public void Initialize()
         {
             StopAllCoroutines();
@@ -45,6 +80,12 @@ namespace Gameplay
             _blockViews.Clear();
 
             CurrentLevel = new Level(LevelData);
+            _timer = new LevelTimer(CurrentLevel.TimeLimitSeconds);
+            _isFinished = false;
+            Time.timeScale = 1f;
+            LoseWindow.gameObject.SetActive(false);
+            DragController.enabled = true;
+            TimerView.SetSeconds(Mathf.CeilToInt(_timer.RemainingSeconds));
 
             var cellSize = BlockPrefab.LogicalCellSize;
             BlockMaterials.Prepare(transform.worldToLocalMatrix,
@@ -86,7 +127,7 @@ namespace Gameplay
 
         public bool TryExit(BlockView view, Vector2Int direction)
         {
-            if (!CurrentLevel.TryBeginExit(view.Block, direction, out var door))
+            if (_isFinished || !CurrentLevel.TryBeginExit(view.Block, direction, out var door))
             {
                 return false;
             }
@@ -112,8 +153,10 @@ namespace Gameplay
             _blockViews.Remove(view);
             view.gameObject.SetActive(false);
             Destroy(view.gameObject);
-            if (CurrentLevel.IsCompleted)
+            if (!_isFinished && CurrentLevel.IsCompleted)
             {
+                _isFinished = true;
+                DragController.enabled = false;
                 LevelCompleted?.Invoke();
             }
         }

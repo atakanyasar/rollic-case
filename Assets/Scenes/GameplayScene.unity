@@ -1125,10 +1125,9 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-
 --- !u!114 &497900745
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1281,6 +1280,7 @@ GameObject:
   - component: {fileID: 948737968}
   - component: {fileID: 948737970}
   - component: {fileID: 948737969}
+  - component: {fileID: 948737971}
   m_Layer: 5
   m_Name: Time
   m_TagString: Untagged
@@ -1404,6 +1404,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 948737967}
   m_CullTransparentMesh: 1
+--- !u!114 &948737971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 948737967}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 616d9903f6e141559377725b69e4a53f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Text: {fileID: 948737969}
 --- !u!1 &1164763675
 GameObject:
   m_ObjectHideFlags: 0
@@ -1756,6 +1769,33 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1259437899}
   m_CullTransparentMesh: 1
+--- !u!225 &1259437903
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259437899}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
+--- !u!114 &1259437904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1259437899}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f9cf98f97ad4470d9e19f44f289d6078, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Window: {fileID: 1906510631}
+  Group: {fileID: 1259437903}
+  OpenDuration: 0.3
 --- !u!1 &1328694881
 GameObject:
   m_ObjectHideFlags: 0
@@ -2739,10 +2779,9 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument:
+          m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-
 --- !u!114 &1868996503
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2833,6 +2872,9 @@ MonoBehaviour:
   GridView: {fileID: 1900000004}
   WallView: {fileID: 1900000005}
   BoardCamera: {fileID: 30310025}
+  TimerView: {fileID: 948737971}
+  LoseWindow: {fileID: 1259437904}
+  DragController: {fileID: 1900000006}
   BoardScreenFraction: {x: 0.7, y: 0.6}
   BoardMaskPadding: 0.5
   BlockMaterials:
@@ -3198,30 +3240,3 @@ SceneRoots:
   - {fileID: 53843971}
   - {fileID: 574245763}
   - {fileID: 1900000002}
---- !u!225 &1259437903
-CanvasGroup:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259437899}
-  m_Enabled: 1
-  m_Alpha: 1
-  m_Interactable: 1
-  m_BlocksRaycasts: 1
-  m_IgnoreParentGroups: 0
---- !u!114 &1259437904
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1259437899}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f9cf98f97ad4470d9e19f44f289d6078, type: 3}
-  m_Name:
-  m_EditorClassIdentifier:
-  Window: {fileID: 1906510631}
-  Group: {fileID: 1259437903}
-  OpenDuration: 0.3
