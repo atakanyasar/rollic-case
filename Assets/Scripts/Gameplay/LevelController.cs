@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Gameplay.Data;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UI;
 
 namespace Gameplay
@@ -11,20 +12,22 @@ namespace Gameplay
 
         private const float ContinueTimeSeconds = 20f;
 
-        [SerializeField] private LevelData LevelData;
+        [SerializeField] private LevelCatalog LevelCatalog;
 
         [SerializeField] private BoardView BoardView;
         [SerializeField] private GameplayUI GameplayUI;
         [SerializeField] private BlockDragController DragController;
 
         private LevelTimer _timer;
+        private LevelProgress _progress;
         private enum LevelState
         {
             Playing,
             AwaitingContinue,
             ConfirmingRetry,
             Paused,
-            Finished
+            Finished,
+            Completed
         }
 
         private LevelState _state;
@@ -159,6 +162,30 @@ namespace Gameplay
             DragController.enabled = true;
         }
 
+        public void NextLevel()
+        {
+            if (_state != LevelState.Completed)
+            {
+                return;
+            }
+
+            _state = LevelState.Finished;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("GameplayScene");
+        }
+
+        public void WinHome()
+        {
+            if (_state != LevelState.Completed)
+            {
+                return;
+            }
+
+            _state = LevelState.Finished;
+            Time.timeScale = 1f;
+            SceneManager.LoadScene("MainScene");
+        }
+
         public void PauseTimer()
         {
             _timer.Pause();
@@ -172,7 +199,8 @@ namespace Gameplay
         public void Initialize()
         {
             StopAllCoroutines();
-            CurrentLevel = new Level(LevelData);
+            _progress = new LevelProgress(LevelCatalog);
+            CurrentLevel = new Level(_progress.CurrentLevel);
             _timer = new LevelTimer(CurrentLevel.TimeLimitSeconds);
             _state = LevelState.Playing;
             Time.timeScale = 1f;
@@ -208,8 +236,11 @@ namespace Gameplay
             CurrentLevel.RemoveBlock(view.Block);
             if (CurrentLevel.IsCompleted)
             {
-                _state = LevelState.Finished;
+                _state = LevelState.Completed;
+                _timer.Pause();
                 DragController.enabled = false;
+                _progress.Advance();
+                GameplayUI.ShowWin();
                 LevelCompleted?.Invoke();
             }
         }

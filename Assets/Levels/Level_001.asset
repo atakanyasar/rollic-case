@@ -15,7 +15,7 @@ MonoBehaviour:
   Id: 1
   Width: 5
   Height: 5
-  TimeLimitSeconds: 120
+  TimeLimitSeconds: 20
   Blocks:
   - Id: 1
     Color: 0

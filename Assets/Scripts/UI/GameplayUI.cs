@@ -12,6 +12,7 @@ namespace UI
         [SerializeField] private WindowView OutOfTimeWindow;
         [SerializeField] private WindowView RetryWindow;
         [SerializeField] private SettingsWindow SettingsWindow;
+        [SerializeField] private WindowView WinWindow;
 
         public event Action SettingsClosed;
 
@@ -39,6 +40,7 @@ namespace UI
         {
             LevelText.SetText("Level \n<size=150%>{0}</size>", levelId);
             SettingsWindow.gameObject.SetActive(false);
+            WinWindow.Hide();
             LoseWindow.Hide();
             RetryWindow.Hide();
             OutOfTimeWindow.Hide();
@@ -68,6 +70,11 @@ namespace UI
         public void HideRetry()
         {
             RetryWindow.Hide();
+        }
+
+        public void ShowWin()
+        {
+            WinWindow.Show();
         }
 
         public void ShowLose()
