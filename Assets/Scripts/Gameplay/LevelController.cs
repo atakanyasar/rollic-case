@@ -1,7 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using DG.Tweening;
 using Gameplay.Data;
 using UnityEngine;
 using UI;
@@ -11,26 +9,24 @@ namespace Gameplay
     public class LevelController : MonoBehaviour
     {
 
+        private const float ContinueTimeSeconds = 20f;
+
         [SerializeField] private LevelData LevelData;
 
-        [SerializeField] private BlockView BlockPrefab;
-        [SerializeField] private GridView GridView;
-        [SerializeField] private WallView WallView;
-
-        [SerializeField] private Camera BoardCamera;
-        [SerializeField] private TimerView TimerView;
-        [SerializeField] private LoseWindow LoseWindow;
+        [SerializeField] private BoardView BoardView;
+        [SerializeField] private GameplayUI GameplayUI;
         [SerializeField] private BlockDragController DragController;
 
-        [SerializeField] private Vector2 BoardScreenFraction;
-        [SerializeField] private float BoardMaskPadding;
-        [SerializeField] private BoardBlockMaterials BlockMaterials;
-
-        private readonly List<BlockView> _blockViews = new();
-        private readonly Dictionary<Collider, BlockView> _blockViewsByCollider = new();
-
         private LevelTimer _timer;
-        private bool _isFinished;
+        private enum LevelState
+        {
+            Playing,
+            AwaitingContinue,
+            ConfirmingRetry,
+            Finished
+        }
+
+        private LevelState _state;
 
         public Level CurrentLevel { get; private set; }
         public event Action LevelCompleted;
@@ -42,20 +38,87 @@ namespace Gameplay
         
         private void Update()
         {
-            if (_isFinished)
+            if (_state != LevelState.Playing)
             {
                 return;
             }
 
             _timer.Tick(Time.deltaTime);
-            TimerView.SetSeconds(Mathf.CeilToInt(_timer.RemainingSeconds));
+            GameplayUI.SetTime(_timer.RemainingSeconds);
             if (_timer.IsExpired)
             {
-                _isFinished = true;
+                _state = LevelState.AwaitingContinue;
+                _timer.Pause();
                 DragController.enabled = false;
                 Time.timeScale = 0f;
-                LoseWindow.Show();
+                GameplayUI.ShowOutOfTime();
             }
+        }
+
+        public void ContinueLevel()
+        {
+            if (_state != LevelState.AwaitingContinue)
+            {
+                return;
+            }
+
+            _state = LevelState.Playing;
+            _timer.AddTime(ContinueTimeSeconds);
+            _timer.Resume();
+            GameplayUI.HideOutOfTime();
+            GameplayUI.SetTime(_timer.RemainingSeconds);
+            Time.timeScale = 1f;
+            DragController.enabled = true;
+        }
+
+        public void DeclineContinue()
+        {
+            if (_state != LevelState.AwaitingContinue)
+            {
+                return;
+            }
+
+            _state = LevelState.Finished;
+            GameplayUI.ShowLose();
+        }
+
+        public void OpenRetry()
+        {
+            if (_state != LevelState.Playing)
+            {
+                return;
+            }
+
+            _state = LevelState.ConfirmingRetry;
+            _timer.Pause();
+            DragController.enabled = false;
+            Time.timeScale = 0f;
+            GameplayUI.ShowRetry();
+        }
+
+        public void CloseRetry()
+        {
+            if (_state != LevelState.ConfirmingRetry)
+            {
+                return;
+            }
+
+            _state = LevelState.Playing;
+            GameplayUI.HideRetry();
+            _timer.Resume();
+            Time.timeScale = 1f;
+            DragController.enabled = true;
+        }
+
+        public void ConfirmRetry()
+        {
+            if (_state != LevelState.ConfirmingRetry)
+            {
+                return;
+            }
+
+            _state = LevelState.Finished;
+            GameplayUI.ShowLose();
         }
 
         public void PauseTimer()
@@ -71,124 +134,46 @@ namespace Gameplay
         public void Initialize()
         {
             StopAllCoroutines();
-            _blockViewsByCollider.Clear();
-            foreach (var view in _blockViews)
-            {
-                view.gameObject.SetActive(false);
-                Destroy(view.gameObject);
-            }
-            _blockViews.Clear();
-
             CurrentLevel = new Level(LevelData);
             _timer = new LevelTimer(CurrentLevel.TimeLimitSeconds);
-            _isFinished = false;
+            _state = LevelState.Playing;
             Time.timeScale = 1f;
-            LoseWindow.gameObject.SetActive(false);
             DragController.enabled = true;
-            TimerView.SetSeconds(Mathf.CeilToInt(_timer.RemainingSeconds));
+            GameplayUI.Prepare(CurrentLevel.Id, _timer.RemainingSeconds);
 
-            var cellSize = BlockPrefab.LogicalCellSize;
-            BlockMaterials.Prepare(transform.worldToLocalMatrix,
-                new Vector2(
-                    (CurrentLevel.Grid.Width + BoardMaskPadding * 2f) * cellSize,
-                    (CurrentLevel.Grid.Height + BoardMaskPadding * 2f) * cellSize));
-            GridView.Prepare(CurrentLevel.Grid, cellSize);
-            WallView.Prepare(CurrentLevel.Grid, cellSize);
-            var origin = new Vector3(
-                -(CurrentLevel.Grid.Width - 1) * cellSize * 0.5f,
-                -(CurrentLevel.Grid.Height - 1) * cellSize * 0.5f,
-                0f);
-
-            foreach (var entry in CurrentLevel.Blocks)
-            {
-                var block = entry.Value;
-                var view = Instantiate(BlockPrefab, transform);
-                view.name = $"Block_{entry.Key}";
-                view.transform.localPosition = origin + new Vector3(
-                    block.PivotCell.Column * cellSize,
-                    block.PivotCell.Row * cellSize,
-                    0f);
-                view.transform.localRotation = Quaternion.identity;
-                view.Prepare(block, BlockMaterials.Get(block.Color));
-                _blockViews.Add(view);
-                foreach (var collider in view.Colliders)
-                {
-                    _blockViewsByCollider.Add(collider, view);
-                }
-            }
-
-            FitBoardCamera();
-        }
-
-        public bool TryGetBlockView(Collider collider, out BlockView view)
-        {
-            return _blockViewsByCollider.TryGetValue(collider, out view);
+            BoardView.Prepare(CurrentLevel);
         }
 
         public bool TryExit(BlockView view, Vector2Int direction)
         {
-            if (_isFinished || !CurrentLevel.TryBeginExit(view.Block, direction, out var door))
+            if (_state != LevelState.Playing || !CurrentLevel.TryBeginExit(view.Block, direction, out var door))
             {
                 return false;
             }
 
-            foreach (var collider in view.Colliders)
-            {
-                collider.enabled = false;
-                _blockViewsByCollider.Remove(collider);
-            }
             StartCoroutine(ExitBlock(view, door));
             return true;
         }
 
         private IEnumerator ExitBlock(BlockView view, Door door)
         {
-            var alignedPosition = GetBlockPosition(view);
-            var doorView = WallView.GetDoorView(door);
-            doorView.BeginExit(view.ExitAnimationDuration);
-            yield return view.PlayExit(alignedPosition, door.Direction).WaitForCompletion();
-            doorView.EndExit(view.ExitAnimationDuration);
+            yield return BoardView.PlayExit(view, door);
+            while (_state == LevelState.AwaitingContinue || _state == LevelState.ConfirmingRetry)
+            {
+                yield return null;
+            }
+            if (_state == LevelState.Finished)
+            {
+                yield break;
+            }
 
             CurrentLevel.RemoveBlock(view.Block);
-            _blockViews.Remove(view);
-            view.gameObject.SetActive(false);
-            Destroy(view.gameObject);
-            if (!_isFinished && CurrentLevel.IsCompleted)
+            if (CurrentLevel.IsCompleted)
             {
-                _isFinished = true;
+                _state = LevelState.Finished;
                 DragController.enabled = false;
                 LevelCompleted?.Invoke();
             }
-        }
-
-        private Vector3 GetBlockPosition(BlockView view)
-        {
-            var grid = CurrentLevel.Grid;
-            return new Vector3(
-                view.Block.PivotCell.Column - (grid.Width - 1) * 0.5f,
-                view.Block.PivotCell.Row - (grid.Height - 1) * 0.5f,
-                0f) * view.LogicalCellSize;
-        }
-
-        private void OnDestroy()
-        {
-            BlockMaterials.Dispose();
-        }
-
-        private void FitBoardCamera()
-        {
-            var cellSize = BlockPrefab.LogicalCellSize;
-            var width = (CurrentLevel.Grid.Width + 2) * cellSize * Mathf.Abs(transform.lossyScale.x);
-            var height = (CurrentLevel.Grid.Height + 2) * cellSize * Mathf.Abs(transform.lossyScale.y);
-            var cameraAspect = BoardCamera.aspect;
-
-            BoardCamera.orthographicSize = Mathf.Max(
-                width / (2f * cameraAspect * BoardScreenFraction.x),
-                height / (2f * BoardScreenFraction.y));
-
-            var cameraTransform = BoardCamera.transform;
-            var distance = (transform.position.z - cameraTransform.position.z) / cameraTransform.forward.z;
-            cameraTransform.position = transform.position - cameraTransform.forward * distance;
         }
     }
 }

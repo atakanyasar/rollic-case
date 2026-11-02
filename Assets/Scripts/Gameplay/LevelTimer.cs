@@ -23,6 +23,11 @@ namespace Gameplay
             RemainingSeconds = Math.Max(0f, RemainingSeconds - deltaTime);
         }
 
+        public void AddTime(float seconds)
+        {
+            RemainingSeconds += seconds;
+        }
+
         public void Pause()
         {
             IsPaused = true;

@@ -9,6 +9,7 @@ namespace Gameplay
     {
         [SerializeField] private LevelController LevelController;
         [SerializeField] private Camera BoardCamera;
+        [SerializeField] private BoardView BoardView;
         [SerializeField] private float SnapDuration;
         [SerializeField] private float ExitThreshold;
 
@@ -104,12 +105,12 @@ namespace Gameplay
                 return;
             }
 
-            if (!LevelController.TryGetBlockView(hit.collider, out var view))
+            if (!BoardView.TryGetBlockView(hit.collider, out var view))
             {
                 return;
             }
 
-            _dragPlane = new Plane(LevelController.transform.forward, LevelController.transform.position);
+            _dragPlane = new Plane(BoardView.transform.forward, BoardView.transform.position);
             if (!_dragPlane.Raycast(ray, out var distance))
             {
                 return;
@@ -118,7 +119,7 @@ namespace Gameplay
             _selectedBlock = view;
             _pointerId = pointerId;
             _movement = new BlockDragMovement(LevelController.CurrentLevel.Grid, view.Block);
-            _grabOffset = LevelController.transform.InverseTransformPoint(ray.GetPoint(distance)) - view.transform.localPosition;
+            _grabOffset = BoardView.transform.InverseTransformPoint(ray.GetPoint(distance)) - view.transform.localPosition;
             _boardOrigin = view.transform.localPosition
                 - new Vector3(_movement.Position.x, _movement.Position.y, 0f) * view.LogicalCellSize;
         }
@@ -131,7 +132,7 @@ namespace Gameplay
                 return;
             }
 
-            var position = LevelController.transform.InverseTransformPoint(ray.GetPoint(distance));
+            var position = BoardView.transform.InverseTransformPoint(ray.GetPoint(distance));
             Vector2 target = (position - _grabOffset - _boardOrigin) / _selectedBlock.LogicalCellSize;
             _movement.MoveTo(target);
             _selectedBlock.transform.localPosition = _boardOrigin
