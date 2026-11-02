@@ -1,3 +1,4 @@
+using Data;
 using DG.Tweening;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -13,13 +14,15 @@ namespace UI
         [SerializeField] private Sprite OffSprite;
         [SerializeField] private float OnPosition;
         [SerializeField] private float OffPosition;
-        [SerializeField] private bool Value;
+        [SerializeField] private string PreferenceKey;
+        [SerializeField] private bool DefaultValue;
         [SerializeField] private float AnimationDuration;
 
+        private CachedInt _setting;
         private Tween _slideTween;
         private float _halfWidth;
 
-        public bool IsOn => Value;
+        public bool IsOn => _setting.Value != 0;
 
         private void OnDisable()
         {
@@ -29,9 +32,10 @@ namespace UI
 
         private void OnEnable()
         {
+            _setting = CachedInt.Get(PreferenceKey, DefaultValue ? 1 : 0);
             _halfWidth = (Indicator.anchorMax.x - Indicator.anchorMin.x) * 0.5f;
-            IndicatorImage.sprite = Value ? OnSprite : OffSprite;
-            SetPosition(Value ? OnPosition : OffPosition);
+            IndicatorImage.sprite = IsOn ? OnSprite : OffSprite;
+            SetPosition(IsOn ? OnPosition : OffPosition);
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -41,13 +45,13 @@ namespace UI
                 return;
             }
 
-            Value = !Value;
-            IndicatorImage.sprite = Value ? OnSprite : OffSprite;
+            _setting.Value = IsOn ? 0 : 1;
+            IndicatorImage.sprite = IsOn ? OnSprite : OffSprite;
             _slideTween?.Kill();
             _slideTween = DOTween.To(
                 () => (Indicator.anchorMin.x + Indicator.anchorMax.x) * 0.5f,
                 SetPosition,
-                Value ? OnPosition : OffPosition,
+                IsOn ? OnPosition : OffPosition,
                 AnimationDuration).SetEase(Ease.OutQuad).SetUpdate(true);
         }
 

@@ -1,4 +1,5 @@
 using System;
+using Data;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,8 +22,22 @@ namespace UI
             Closed?.Invoke();
         }
 
+        private void OnDisable()
+        {
+            CachedInt.Save();
+        }
+
+        private void OnApplicationPause(bool paused)
+        {
+            if (paused)
+            {
+                CachedInt.Save();
+            }
+        }
+
         public void Home()
         {
+            CachedInt.Save();
             Time.timeScale = 1f;
             SceneManager.LoadScene(MainScene);
         }

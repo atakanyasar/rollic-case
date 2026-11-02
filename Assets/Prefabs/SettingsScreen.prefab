@@ -227,7 +227,8 @@ MonoBehaviour:
   OffSprite: {fileID: 21300000, guid: 59287f298abba463baf56d8c402d64c3, type: 3}
   OnPosition: 0.825
   OffPosition: 0.175
-  Value: 1
+  PreferenceKey: Settings.Sound
+  DefaultValue: 1
   AnimationDuration: 0.15
 --- !u!1 &669192548717822266
 GameObject:
@@ -534,7 +535,8 @@ MonoBehaviour:
   OffSprite: {fileID: 21300000, guid: 59287f298abba463baf56d8c402d64c3, type: 3}
   OnPosition: 0.825
   OffPosition: 0.175
-  Value: 1
+  PreferenceKey: Settings.Music
+  DefaultValue: 1
   AnimationDuration: 0.15
 --- !u!1 &2535813517712830726
 GameObject:
@@ -2206,7 +2208,8 @@ MonoBehaviour:
   OffSprite: {fileID: 21300000, guid: 59287f298abba463baf56d8c402d64c3, type: 3}
   OnPosition: 0.825
   OffPosition: 0.175
-  Value: 1
+  PreferenceKey: Settings.Vibration
+  DefaultValue: 1
   AnimationDuration: 0.15
 --- !u!1 &8824198774525614772
 GameObject:
