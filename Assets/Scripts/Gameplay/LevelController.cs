@@ -23,6 +23,7 @@ namespace Gameplay
             Playing,
             AwaitingContinue,
             ConfirmingRetry,
+            Paused,
             Finished
         }
 
@@ -30,6 +31,16 @@ namespace Gameplay
 
         public Level CurrentLevel { get; private set; }
         public event Action LevelCompleted;
+
+        private void OnEnable()
+        {
+            GameplayUI.SettingsClosed += ResumeLevel;
+        }
+
+        private void OnDisable()
+        {
+            GameplayUI.SettingsClosed -= ResumeLevel;
+        }
 
         private void Start()
         {
@@ -121,6 +132,33 @@ namespace Gameplay
             GameplayUI.ShowLose();
         }
 
+        public void PauseLevel()
+        {
+            if (_state != LevelState.Playing)
+            {
+                return;
+            }
+
+            _state = LevelState.Paused;
+            _timer.Pause();
+            DragController.enabled = false;
+            Time.timeScale = 0f;
+            GameplayUI.ShowSettings();
+        }
+
+        public void ResumeLevel()
+        {
+            if (_state != LevelState.Paused)
+            {
+                return;
+            }
+
+            _state = LevelState.Playing;
+            _timer.Resume();
+            Time.timeScale = 1f;
+            DragController.enabled = true;
+        }
+
         public void PauseTimer()
         {
             _timer.Pause();
@@ -158,7 +196,7 @@ namespace Gameplay
         private IEnumerator ExitBlock(BlockView view, Door door)
         {
             yield return BoardView.PlayExit(view, door);
-            while (_state == LevelState.AwaitingContinue || _state == LevelState.ConfirmingRetry)
+            while (_state == LevelState.AwaitingContinue || _state == LevelState.ConfirmingRetry || _state == LevelState.Paused)
             {
                 yield return null;
             }

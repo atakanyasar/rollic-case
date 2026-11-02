@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 
@@ -10,10 +11,34 @@ namespace UI
         [SerializeField] private LoseWindow LoseWindow;
         [SerializeField] private WindowView OutOfTimeWindow;
         [SerializeField] private WindowView RetryWindow;
+        [SerializeField] private SettingsWindow SettingsWindow;
+
+        public event Action SettingsClosed;
+
+        private void OnEnable()
+        {
+            SettingsWindow.Closed += OnSettingsClosed;
+        }
+
+        private void OnDisable()
+        {
+            SettingsWindow.Closed -= OnSettingsClosed;
+        }
+
+        private void OnSettingsClosed()
+        {
+            SettingsClosed?.Invoke();
+        }
+
+        public void ShowSettings()
+        {
+            SettingsWindow.Show();
+        }
 
         public void Prepare(int levelId, float remainingSeconds)
         {
             LevelText.SetText("Level \n<size=150%>{0}</size>", levelId);
+            SettingsWindow.gameObject.SetActive(false);
             LoseWindow.Hide();
             RetryWindow.Hide();
             OutOfTimeWindow.Hide();
