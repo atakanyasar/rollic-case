@@ -131,7 +131,7 @@ namespace Gameplay.Model
             block.PivotCell = null;
         }
 
-        private bool CanOccupy(Block block, int row, int column)
+        public bool CanOccupy(Block block, int row, int column, Block ignoredBlock = null)
         {
             if (block.Offsets == null || block.Offsets.Count == 0 || GetCell(row, column) == null)
             {
@@ -141,7 +141,7 @@ namespace Gameplay.Model
             foreach (var offset in block.Offsets)
             {
                 var cell = GetCell(row + offset.y, column + offset.x);
-                if (cell == null || (cell.Block != null && cell.Block != block))
+                if (cell == null || (cell.Block != null && cell.Block != block && cell.Block != ignoredBlock))
                 {
                     return false;
                 }

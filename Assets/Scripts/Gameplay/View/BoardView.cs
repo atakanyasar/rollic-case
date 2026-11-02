@@ -110,7 +110,7 @@ namespace Gameplay.View
 
         private void OnDestroy()
         {
-            BlockMaterials.Dispose();
+            BlockMaterials.Dispose(!Application.IsPlaying(gameObject));
         }
     }
 }

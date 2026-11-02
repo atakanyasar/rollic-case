@@ -4093,13 +4093,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1358614231}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
+  m_LocalRotation: {x: 0.25000006, y: -0.24999997, z: 0.066987306, w: 0.9330127}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 30, y: -30, z: 0}
 --- !u!1 &1362573194
 GameObject:
   m_ObjectHideFlags: 0
@@ -6063,7 +6063,7 @@ MonoBehaviour:
   GridView: {fileID: 1900000004}
   WallView: {fileID: 1900000005}
   BoardCamera: {fileID: 30310025}
-  BoardScreenFraction: {x: 0.7, y: 0.6}
+  BoardScreenFraction: {x: 0.8, y: 0.8}
   BoardMaskPadding: 0.5
   BlockMaterials:
     RedMaterial: {fileID: 2100000, guid: bb747866109b64cf898042a72b662dd8, type: 2}

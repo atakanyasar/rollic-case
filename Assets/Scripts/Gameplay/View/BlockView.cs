@@ -43,7 +43,7 @@ namespace Gameplay.View
                     (entry.Key.y - 0.5f) * spacing,
                     0f);
                 var pivotOffset = Vector3.zero;
-                if (source == OuterCorner || source == Edge)
+                if (source == OuterCorner || source == Edge || source == Center)
                 {
                     pivotOffset = new Vector3(-spacing * 0.5f, -spacing * 0.5f, 0f);
                 }

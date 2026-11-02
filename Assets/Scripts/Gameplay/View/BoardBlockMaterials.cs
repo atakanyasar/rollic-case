@@ -52,9 +52,21 @@ namespace Gameplay.View
 
         public void Dispose()
         {
+            Dispose(!Application.isPlaying);
+        }
+
+        public void Dispose(bool immediate)
+        {
             foreach (var material in _materials.Values)
             {
-                UnityEngine.Object.Destroy(material);
+                if (immediate)
+                {
+                    UnityEngine.Object.DestroyImmediate(material);
+                }
+                else
+                {
+                    UnityEngine.Object.Destroy(material);
+                }
             }
             _materials.Clear();
         }
