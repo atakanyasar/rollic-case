@@ -256,7 +256,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7100000000000000003}
-        m_TargetAssemblyTypeName: UI.SettingsWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.SettingsWindow, Assembly-CSharp
         m_MethodName: Home
         m_Mode: 1
         m_Arguments:

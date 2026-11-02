@@ -486,7 +486,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4995131}
-        m_TargetAssemblyTypeName: UI.PlayWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.PlayWindow, Assembly-CSharp
         m_MethodName: Show
         m_Mode: 1
         m_Arguments:
@@ -1877,7 +1877,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4995131}
-        m_TargetAssemblyTypeName: UI.PlayWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.PlayWindow, Assembly-CSharp
         m_MethodName: Hide
         m_Mode: 1
         m_Arguments:
@@ -2662,7 +2662,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 4995131}
-        m_TargetAssemblyTypeName: UI.PlayWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.PlayWindow, Assembly-CSharp
         m_MethodName: Play
         m_Mode: 1
         m_Arguments:

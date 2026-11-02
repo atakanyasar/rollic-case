@@ -1108,7 +1108,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: WinHome
         m_Mode: 1
         m_Arguments:
@@ -1958,7 +1958,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1259437904}
-        m_TargetAssemblyTypeName: UI.LoseWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.LoseWindow, Assembly-CSharp
         m_MethodName: Close
         m_Mode: 1
         m_Arguments:
@@ -3026,7 +3026,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: ConfirmRetry
         m_Mode: 1
         m_Arguments:
@@ -3312,7 +3312,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: CloseRetry
         m_Mode: 1
         m_Arguments:
@@ -3566,7 +3566,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: NextLevel
         m_Mode: 1
         m_Arguments:
@@ -3814,7 +3814,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: PauseLevel
         m_Mode: 1
         m_Arguments:
@@ -5024,7 +5024,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: DeclineContinue
         m_Mode: 1
         m_Arguments:
@@ -5233,7 +5233,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: ContinueLevel
         m_Mode: 1
         m_Arguments:
@@ -5404,7 +5404,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1900000003}
-        m_TargetAssemblyTypeName: Gameplay.LevelController, Assembly-CSharp
+        m_TargetAssemblyTypeName: Gameplay.Flow.LevelController, Assembly-CSharp
         m_MethodName: OpenRetry
         m_Mode: 1
         m_Arguments:
@@ -5889,7 +5889,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1259437904}
-        m_TargetAssemblyTypeName: UI.LoseWindow, Assembly-CSharp
+        m_TargetAssemblyTypeName: UI.Windows.LoseWindow, Assembly-CSharp
         m_MethodName: Retry
         m_Mode: 1
         m_Arguments:
