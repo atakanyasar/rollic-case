@@ -10,7 +10,7 @@ namespace Gameplay.Model
         public int IceRemaining { get; private set; }
         public bool IsFrozen => IceRemaining > 0;
         public event Action IceChanged;
-        public List<Vector2Int> Offsets = new();
+        public List<Vector2Int> Offsets;
         public Cell PivotCell;
         public bool IsExiting;
         

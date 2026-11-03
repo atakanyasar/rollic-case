@@ -73,7 +73,17 @@ namespace Gameplay.Model
                 {
                     touchesEdge = true;
                 }
+            }
 
+            if (!touchesEdge)
+            {
+                return false;
+            }
+
+            foreach (var offset in block.Offsets)
+            {
+                var row = block.PivotCell.Row + offset.y;
+                var column = block.PivotCell.Column + offset.x;
                 var cell = GetCell(row + dy, column + dx);
                 while (cell != null)
                 {
@@ -88,7 +98,7 @@ namespace Gameplay.Model
                 }
             }
 
-            return touchesEdge;
+            return true;
         }
 
         public bool EmplaceBlock(Block block, int pivotRow, int pivotColumn)

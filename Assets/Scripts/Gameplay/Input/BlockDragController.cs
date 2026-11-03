@@ -1,11 +1,8 @@
 using System.Collections.Generic;
-using System.Collections;
 using Gameplay.Flow;
-using Gameplay.Model;
 using Gameplay.View;
 using UnityEngine.EventSystems;
 using UnityEngine;
-using Grid = Gameplay.Model.Grid;
 using UnityInput = UnityEngine.Input;
 namespace Gameplay.Input
 {
@@ -18,6 +15,8 @@ namespace Gameplay.Input
         [SerializeField] private float ExitThreshold;
 
         private readonly List<RaycastResult> _uiHits = new();
+        private EventSystem _eventSystem;
+        private PointerEventData _pointerEvent;
         private BlockView _selectedBlock;
         private BlockDragMovement _movement;
         private Plane _dragPlane;
@@ -26,10 +25,12 @@ namespace Gameplay.Input
         private int _pointerId;
         private BlockView _snappingBlock;
         private Vector3 _snapTarget;
-        private Coroutine _snapRoutine;
+        private Vector3 _snapStart;
+        private float _snapElapsed;
 
         private void Update()
         {
+            UpdateSnap();
             if (!TryReadPointer(out var pointer))
             {
                 EndDrag();
@@ -88,13 +89,16 @@ namespace Gameplay.Input
         {
             if (EventSystem.current != null)
             {
-                var pointer = new PointerEventData(EventSystem.current)
+                if (_eventSystem != EventSystem.current)
                 {
-                    position = screenPosition,
-                    pointerId = pointerId
-                };
+                    _eventSystem = EventSystem.current;
+                    _pointerEvent = new PointerEventData(_eventSystem);
+                }
+                _pointerEvent.Reset();
+                _pointerEvent.position = screenPosition;
+                _pointerEvent.pointerId = pointerId;
                 _uiHits.Clear();
-                EventSystem.current.RaycastAll(pointer, _uiHits);
+                _eventSystem.RaycastAll(_pointerEvent, _uiHits);
                 if (_uiHits.Count > 0)
                 {
                     return;
@@ -122,7 +126,14 @@ namespace Gameplay.Input
 
             _selectedBlock = view;
             _pointerId = pointerId;
-            _movement = new BlockDragMovement(LevelController.CurrentLevel.Grid, view.Block);
+            if (_movement == null)
+            {
+                _movement = new BlockDragMovement(LevelController.CurrentLevel.Grid, view.Block);
+            }
+            else
+            {
+                _movement.Prepare(LevelController.CurrentLevel.Grid, view.Block);
+            }
             _grabOffset = BoardView.transform.InverseTransformPoint(ray.GetPoint(distance)) - view.transform.localPosition;
             _boardOrigin = view.transform.localPosition
                 - new Vector3(_movement.Position.x, _movement.Position.y, 0f) * view.LogicalCellSize;
@@ -155,7 +166,6 @@ namespace Gameplay.Input
             if (LevelController.TryExit(_selectedBlock, direction))
             {
                 _selectedBlock = null;
-                _movement = null;
             }
         }
 
@@ -170,7 +180,8 @@ namespace Gameplay.Input
                     0f) * _selectedBlock.LogicalCellSize;
                 if (SnapDuration > 0f)
                 {
-                    _snapRoutine = StartCoroutine(Snap());
+                    _snapStart = _snappingBlock.transform.localPosition;
+                    _snapElapsed = 0f;
                 }
                 else
                 {
@@ -179,36 +190,26 @@ namespace Gameplay.Input
             }
 
             _selectedBlock = null;
-            _movement = null;
         }
 
-        private IEnumerator Snap()
+        private void UpdateSnap()
         {
-            var start = _snappingBlock.transform.localPosition;
-            for (var elapsed = 0f; elapsed < SnapDuration;)
+            if (_snappingBlock == null || !_snappingBlock.gameObject.activeInHierarchy)
             {
-                if (_snappingBlock == null || !_snappingBlock.gameObject.activeInHierarchy)
-                {
-                    break;
-                }
-
-                elapsed += Time.unscaledDeltaTime;
-                _snappingBlock.transform.localPosition = Vector3.Lerp(
-                    start, _snapTarget, Mathf.SmoothStep(0f, 1f, elapsed / SnapDuration));
-                yield return null;
+                return;
             }
 
-            _snapRoutine = null;
-            CompleteSnap();
+            _snapElapsed += Time.unscaledDeltaTime;
+            _snappingBlock.transform.localPosition = Vector3.Lerp(
+                _snapStart, _snapTarget, Mathf.SmoothStep(0f, 1f, _snapElapsed / SnapDuration));
+            if (_snapElapsed >= SnapDuration)
+            {
+                CompleteSnap();
+            }
         }
 
         private void CompleteSnap()
         {
-            if (_snapRoutine != null)
-            {
-                StopCoroutine(_snapRoutine);
-                _snapRoutine = null;
-            }
             if (_snappingBlock != null && _snappingBlock.gameObject.activeInHierarchy)
             {
                 _snappingBlock.transform.localPosition = _snapTarget;

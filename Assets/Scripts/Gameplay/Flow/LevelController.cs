@@ -176,12 +176,13 @@ namespace Gameplay.Flow
 
         private IEnumerator ExitBlock(BlockView view, Door door)
         {
+            var block = view.Block;
             yield return BoardView.PlayExit(view, door);
             while (_session.IsPaused)
             {
                 yield return null;
             }
-            if (_session.CompleteExit(view.Block))
+            if (_session.CompleteExit(block))
             {
                 DragController.enabled = false;
                 GameplayUI.ShowWin();

@@ -5,12 +5,17 @@ namespace Gameplay.Input
 {
     public class BlockDragMovement
     {
-        private readonly Grid _grid;
-        private readonly Block _block;
+        private Grid _grid;
+        private Block _block;
 
         public Vector2 Position { get; private set; }
 
         public BlockDragMovement(Grid grid, Block block)
+        {
+            Prepare(grid, block);
+        }
+
+        public void Prepare(Grid grid, Block block)
         {
             _grid = grid;
             _block = block;
