@@ -3,14 +3,17 @@ using Gameplay.Model;
 using TMPro;
 using UI.Windows;
 using UnityEngine;
+using UnityEngine.UI;
 namespace UI.Screens
 {
     public class GameplayUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text LevelText;
+        [SerializeField] private TMP_Text CoinText;
         [SerializeField] private TimerView TimerView;
         [SerializeField] private LoseWindow LoseWindow;
         [SerializeField] private WindowView OutOfTimeWindow;
+        [SerializeField] private Button OutOfTimeContinueButton;
         [SerializeField] private WindowView RetryWindow;
         [SerializeField] private SettingsWindow SettingsWindow;
         [SerializeField] private WindowView WinWindow;
@@ -53,8 +56,14 @@ namespace UI.Screens
             TimerView.SetSeconds(Mathf.CeilToInt(remainingSeconds));
         }
 
-        public void ShowOutOfTime()
+        public void SetCoins(int balance)
         {
+            CoinText.SetText("{0}", balance);
+        }
+
+        public void ShowOutOfTime(bool canContinue)
+        {
+            OutOfTimeContinueButton.interactable = canContinue;
             OutOfTimeWindow.Show();
         }
 

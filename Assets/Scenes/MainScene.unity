@@ -3929,3 +3929,4 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   LevelCatalog: {fileID: 11400000, guid: f992c8bf34f04af4b3a2b9f6208e1032, type: 2}
   LevelText: {fileID: 1265465235}
+  CoinText: {fileID: 523754380}

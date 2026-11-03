@@ -14,6 +14,8 @@ namespace Gameplay.Flow
     {
 
         private const float ContinueTimeSeconds = 20f;
+        private const int ContinueCost = 900;
+        private const int WinReward = 40;
 
         [SerializeField] private LevelCatalog LevelCatalog;
 
@@ -23,6 +25,7 @@ namespace Gameplay.Flow
 
         private LevelTimer _timer;
         private LevelProgress _progress;
+        private CoinInventory _coins;
         private enum LevelState
         {
             Playing,
@@ -68,7 +71,7 @@ namespace Gameplay.Flow
                 _timer.Pause();
                 DragController.enabled = false;
                 Time.timeScale = 0f;
-                GameplayUI.ShowOutOfTime();
+                GameplayUI.ShowOutOfTime(_coins.Balance >= ContinueCost);
             }
         }
 
@@ -79,8 +82,14 @@ namespace Gameplay.Flow
                 return;
             }
 
+            if (!_coins.TrySpend(ContinueCost))
+            {
+                return;
+            }
+
             _state = LevelState.Playing;
             _timer.AddTime(ContinueTimeSeconds);
+            GameplayUI.SetCoins(_coins.Balance);
             _timer.Resume();
             GameplayUI.HideOutOfTime();
             GameplayUI.SetTime(_timer.RemainingSeconds);
@@ -173,6 +182,7 @@ namespace Gameplay.Flow
             }
 
             _state = LevelState.Finished;
+            _coins.Add(WinReward);
             Time.timeScale = 1f;
             SceneManager.LoadScene("GameplayScene");
         }
@@ -203,12 +213,14 @@ namespace Gameplay.Flow
         {
             StopAllCoroutines();
             _progress = new LevelProgress(LevelCatalog);
+            _coins = new CoinInventory();
             CurrentLevel = new Level(_progress.CurrentLevel);
             _timer = new LevelTimer(CurrentLevel.TimeLimitSeconds);
             _state = LevelState.Playing;
             Time.timeScale = 1f;
             DragController.enabled = true;
             GameplayUI.Prepare(CurrentLevel.Id, _timer.RemainingSeconds);
+            GameplayUI.SetCoins(_coins.Balance);
 
             BoardView.Prepare(CurrentLevel);
         }
