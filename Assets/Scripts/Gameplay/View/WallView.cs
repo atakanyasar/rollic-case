@@ -17,6 +17,9 @@ namespace Gameplay.View
         [SerializeField] private Material BlueMaterial;
         [SerializeField] private Material YellowMaterial;
         [SerializeField] private Material GreenMaterial;
+        [SerializeField] private Material PurpleMaterial;
+        [SerializeField] private Material OrangeMaterial;
+        [SerializeField] private Material PinkMaterial;
 
         private GameObject _wallRoot;
         private readonly Dictionary<Door, DoorView> _doorViews = new();
@@ -135,6 +138,9 @@ namespace Gameplay.View
                 BlockColor.Blue => BlueMaterial,
                 BlockColor.Yellow => YellowMaterial,
                 BlockColor.Green => GreenMaterial,
+                BlockColor.Purple => PurpleMaterial,
+                BlockColor.Orange => OrangeMaterial,
+                BlockColor.Pink => PinkMaterial,
                 _ => WallMaterial
             };
         }

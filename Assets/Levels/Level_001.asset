@@ -15,52 +15,86 @@ MonoBehaviour:
   Id: 1
   Width: 5
   Height: 5
-  TimeLimitSeconds: 20
+  TimeLimitSeconds: 90
   Blocks:
   - Id: 1
     Color: 0
+    Movement: 0
+    IceCount: 0
+    Position: {x: 2, y: 1}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - Id: 2
+    Color: 1
+    Movement: 0
+    IceCount: 0
+    Position: {x: 0, y: 3}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 1, y: 0}
+  - Id: 3
+    Color: 2
+    Movement: 0
+    IceCount: 0
+    Position: {x: 2, y: 3}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - Id: 5
+    Color: 3
+    Movement: 0
+    IceCount: 0
     Position: {x: 1, y: 1}
     Offsets:
     - {x: 0, y: 0}
-    - {x: 1, y: 0}
-  - Id: 2
-    Color: 1
-    Position: {x: 3, y: 1}
-    Offsets:
-    - {x: 0, y: 0}
     - {x: 0, y: 1}
-  - Id: 3
+  - Id: 6
+    Color: 0
+    Movement: 0
+    IceCount: 0
+    Position: {x: 1, y: 0}
+    Offsets:
+    - {x: 0, y: 0}
+  - Id: 7
     Color: 2
-    Position: {x: 1, y: 3}
+    Movement: 0
+    IceCount: 0
+    Position: {x: 3, y: 2}
     Offsets:
     - {x: 0, y: 0}
-    - {x: 1, y: 0}
-    - {x: 2, y: 0}
-    - {x: 3, y: 0}
-  - Id: 4
-    Color: 3
-    Position: {x: 0, y: 0}
-    Offsets:
-    - {x: 0, y: 0}
-    - {x: 1, y: 0}
     - {x: 0, y: 1}
     - {x: 0, y: 2}
-    - {x: 0, y: 3}
-    - {x: 0, y: 4}
+  - Id: 8
+    Color: 1
+    Movement: 0
+    IceCount: 0
+    Position: {x: 0, y: 4}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 1, y: 0}
+  - Id: 9
+    Color: 3
+    Movement: 0
+    IceCount: 0
+    Position: {x: 2, y: 0}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 1, y: 0}
   Doors:
   - Color: 0
     Side: 0
     Start: 1
-    End: 2
+    End: 1
   - Color: 1
     Side: 3
-    Start: 1
+    Start: 2
     End: 2
   - Color: 2
-    Side: 2
-    Start: 3
-    End: 3
-  - Color: 3
     Side: 1
-    Start: 0
-    End: 1
+    Start: 2
+    End: 2
+  - Color: 3
+    Side: 0
+    Start: 2
+    End: 3

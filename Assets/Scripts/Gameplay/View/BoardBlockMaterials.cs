@@ -13,6 +13,9 @@ namespace Gameplay.View
         [SerializeField] private Material BlueMaterial;
         [SerializeField] private Material YellowMaterial;
         [SerializeField] private Material GreenMaterial;
+        [SerializeField] private Material PurpleMaterial;
+        [SerializeField] private Material OrangeMaterial;
+        [SerializeField] private Material PinkMaterial;
         [SerializeField] private Shader BoardMaskShader;
         [SerializeField] private Texture2D BoardMask;
 
@@ -23,7 +26,10 @@ namespace Gameplay.View
                 { BlockColor.Red, RedMaterial },
                 { BlockColor.Blue, BlueMaterial },
                 { BlockColor.Yellow, YellowMaterial },
-                { BlockColor.Green, GreenMaterial }
+                { BlockColor.Green, GreenMaterial },
+                { BlockColor.Purple, PurpleMaterial },
+                { BlockColor.Orange, OrangeMaterial },
+                { BlockColor.Pink, PinkMaterial }
             };
             foreach (var entry in sources)
             {

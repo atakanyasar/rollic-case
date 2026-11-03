@@ -18,6 +18,7 @@ namespace LevelEditing
         private LevelEditorState _stagingState;
         private int _stagingRevision = -1;
         private int _revision;
+        private int _shuffleMoves = 50;
         private float _zoom = 1f;
         private float _stagingScale = 0.6f;
         private Vector2 _dragPointerOffset;
@@ -188,6 +189,7 @@ namespace LevelEditing
                 {
                     _sidebarScroll = EditorGUILayout.BeginScrollView(_sidebarScroll);
                     DrawProperties();
+                    DrawShuffle();
                     DrawBlocks();
                     DrawDoors();
                     EditorGUILayout.EndScrollView();
@@ -269,6 +271,36 @@ namespace LevelEditing
                 State.Width = width;
                 State.Height = height;
                 State.TimeLimitSeconds = time;
+            }
+        }
+
+        private void DrawShuffle()
+        {
+            _shuffleMoves = EditorGUILayout.IntSlider("Shuffle moves", _shuffleMoves, 1, 200);
+            using (new EditorGUI.DisabledScope(State.Blocks.Count == 0 || State.Pending.Count > 0))
+            {
+                if (GUILayout.Button("Shuffle"))
+                {
+                    if (!LevelEditorRules.Validate(State, out _message))
+                    {
+                        return;
+                    }
+                    var level = State.Model;
+                    var moves = LevelShuffler.Shuffle(level, _shuffleMoves, new System.Random());
+                    if (moves == 0)
+                    {
+                        _message = "No unvisited moves available. Movement axes and collisions are respected.";
+                        return;
+                    }
+                    Change("Shuffle blocks");
+                    foreach (var block in State.Blocks)
+                    {
+                        var pivot = level.Blocks[block.Id].PivotCell;
+                        block.Position = new Vector2Int(pivot.Column, pivot.Row);
+                    }
+                    _message = $"Shuffled {moves} moves, including ice blocks. Solvability is not checked. Save to keep this layout.";
+                    Repaint();
+                }
             }
         }
 
