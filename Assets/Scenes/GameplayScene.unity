@@ -4527,13 +4527,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1358614231}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.25000006, y: -0.24999997, z: 0.066987306, w: 0.9330127}
+  m_LocalRotation: {x: 0.33036605, y: -0.24321032, z: 0.0885213, w: 0.9076734}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 30, y: -30, z: 0}
+  m_LocalEulerAnglesHint: {x: 40, y: -30, z: 0}
 --- !u!1 &1362573194
 GameObject:
   m_ObjectHideFlags: 0
@@ -7007,7 +7007,7 @@ MonoBehaviour:
   BoardCamera: {fileID: 30310025}
   BoardView: {fileID: 1900000007}
   SnapDuration: 0.02
-  ExitThreshold: 0.25
+  ExitThreshold: 0.15
 --- !u!114 &1900000007
 MonoBehaviour:
   m_ObjectHideFlags: 0

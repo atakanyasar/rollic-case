@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DG.Tweening;
+using TMPro;
 using Gameplay.Model;
 using UnityEngine;
 namespace Gameplay.View
@@ -17,6 +18,9 @@ namespace Gameplay.View
         [SerializeField] private MeshRenderer Arrow3;
         [SerializeField] private float ArrowDepth;
 
+        [SerializeField] private Texture2D IceTexture;
+        [SerializeField] private TextMeshPro IceCounter;
+
         [SerializeField] private float CellSize;
         [SerializeField] private float ColliderDepth;
         [SerializeField] private float ExitDuration;
@@ -24,6 +28,10 @@ namespace Gameplay.View
         private readonly List<GameObject> _parts = new();
         private readonly List<Collider> _colliders = new();
         private GameObject _collidersRoot;
+        private readonly List<MeshRenderer> _bodyRenderers = new();
+        private MaterialPropertyBlock _iceProperties;
+        private MeshRenderer _arrow;
+        private Vector2 _center;
 
         public float LogicalCellSize => CellSize;
         public float ExitAnimationDuration => ExitDuration;
@@ -32,8 +40,23 @@ namespace Gameplay.View
 
         public void Prepare(Block block, Material material)
         {
+            _iceProperties ??= new MaterialPropertyBlock();
+            if (Block != null)
+            {
+                Block.IceChanged -= OnIceChanged;
+            }
             ClearParts();
+            _bodyRenderers.Clear();
             Block = block;
+            Block.IceChanged += OnIceChanged;
+            var min = block.Offsets[0];
+            var max = min;
+            foreach (var cell in block.Offsets)
+            {
+                min = Vector2Int.Min(min, cell);
+                max = Vector2Int.Max(max, cell);
+            }
+            _center = (Vector2)(min + max) * 0.5f;
             CreateColliders();
 
             var layout = BuildLayout(block.Offsets);
@@ -62,10 +85,51 @@ namespace Gameplay.View
                 part.sharedMaterial = material;
                 part.gameObject.SetActive(true);
                 _parts.Add(part.gameObject);
+                _bodyRenderers.Add(part);
             }
             if (block.Movement != BlockMovement.Free)
             {
                 CreateArrow(material);
+            }
+            IceCounter.transform.localPosition = new Vector3(_center.x * CellSize, _center.y * CellSize, ArrowDepth - 0.1f);
+            IceCounter.rectTransform.sizeDelta = Vector2.one * CellSize;
+            IceCounter.SetText("{0}", Block.IceRemaining);
+            UpdateIceAppearance();
+        }
+
+        private void OnIceChanged()
+        {
+            IceCounter.SetText("{0}", Block.IceRemaining);
+            if (!Block.IsFrozen)
+            {
+                UpdateIceAppearance();
+            }
+        }
+
+        private void UpdateIceAppearance()
+        {
+            _iceProperties.Clear();
+            if (Block.IsFrozen)
+            {
+                _iceProperties.SetTexture("_MainTex", IceTexture);
+                _iceProperties.SetColor("_Color", Color.white);
+            }
+            foreach (var renderer in _bodyRenderers)
+            {
+                renderer.SetPropertyBlock(Block.IsFrozen ? _iceProperties : null);
+            }
+            IceCounter.gameObject.SetActive(Block.IsFrozen);
+            if (_arrow != null)
+            {
+                _arrow.gameObject.SetActive(!Block.IsFrozen);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (Block != null)
+            {
+                Block.IceChanged -= OnIceChanged;
             }
         }
 
@@ -73,14 +137,6 @@ namespace Gameplay.View
         {
             var vertical = Block.Movement == BlockMovement.UpDown;
             var axis = vertical ? Vector2Int.up : Vector2Int.right;
-            var min = Block.Offsets[0];
-            var max = min;
-            foreach (var cell in Block.Offsets)
-            {
-                min = Vector2Int.Min(min, cell);
-                max = Vector2Int.Max(max, cell);
-            }
-            var center = (Vector2)(min + max) * 0.5f;
             var length = 0;
             foreach (var cell in Block.Offsets)
             {
@@ -93,7 +149,8 @@ namespace Gameplay.View
             }
             var source = length == 3 ? Arrow3 : length == 2 ? Arrow2 : Arrow1;
             var arrow = Instantiate(source, transform, false);
-            arrow.transform.localPosition = new Vector3(center.x * CellSize, center.y * CellSize, ArrowDepth);
+            _arrow = arrow;
+            arrow.transform.localPosition = new Vector3(_center.x * CellSize, _center.y * CellSize, ArrowDepth);
             arrow.transform.localRotation = Quaternion.Euler(0f, 0f, vertical ? 0f : 90f);
             arrow.transform.localScale = Vector3.one * (CellSize * 0.5f);
             arrow.sharedMaterial = material;

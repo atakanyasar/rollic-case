@@ -20,6 +20,7 @@ MonoBehaviour:
   - Id: 1
     Color: 0
     Movement: 0
+    IceCount: 1
     Position: {x: 6, y: 5}
     Offsets:
     - {x: 0, y: 0}
@@ -34,6 +35,7 @@ MonoBehaviour:
   - Id: 2
     Color: 1
     Movement: 0
+    IceCount: 0
     Position: {x: 2, y: 8}
     Offsets:
     - {x: 0, y: 0}
@@ -45,6 +47,7 @@ MonoBehaviour:
   - Id: 3
     Color: 0
     Movement: 0
+    IceCount: 0
     Position: {x: 0, y: 1}
     Offsets:
     - {x: 2, y: 0}
@@ -58,6 +61,7 @@ MonoBehaviour:
   - Id: 4
     Color: 1
     Movement: 0
+    IceCount: 0
     Position: {x: 4, y: 0}
     Offsets:
     - {x: 0, y: 0}
@@ -71,12 +75,14 @@ MonoBehaviour:
   - Id: 5
     Color: 0
     Movement: 0
+    IceCount: 0
     Position: {x: 0, y: 8}
     Offsets:
     - {x: 0, y: 0}
   - Id: 6
     Color: 1
     Movement: 0
+    IceCount: 0
     Position: {x: 2, y: 7}
     Offsets:
     - {x: 0, y: 0}
@@ -84,12 +90,14 @@ MonoBehaviour:
   - Id: 7
     Color: 2
     Movement: 2
+    IceCount: 0
     Position: {x: 3, y: 2}
     Offsets:
     - {x: 0, y: 0}
   - Id: 8
     Color: 3
     Movement: 2
+    IceCount: 0
     Position: {x: 4, y: 5}
     Offsets:
     - {x: 0, y: 0}

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Data.Levels;
 using UnityEngine;
-using Grid = Gameplay.Model.Grid;
 namespace Gameplay.Model
 {
     public class Level
@@ -20,7 +19,7 @@ namespace Gameplay.Model
 
             foreach (var blockData in data.Blocks)
             {
-                var block = new Block(blockData.Color, new List<Vector2Int>(blockData.Offsets), blockData.Movement);
+                var block = new Block(blockData.Color, new List<Vector2Int>(blockData.Offsets), blockData.Movement, blockData.IceCount);
                 Grid.EmplaceBlock(block, blockData.Position.y, blockData.Position.x);
                 Blocks.Add(blockData.Id, block);
             }
@@ -56,6 +55,10 @@ namespace Gameplay.Model
                     Grid.RemoveBlock(block);
                     block.IsExiting = false;
                     Blocks.Remove(entry.Key);
+                    foreach (var remaining in Blocks.Values)
+                    {
+                        remaining.BreakIce();
+                    }
                     return;
                 }
             }

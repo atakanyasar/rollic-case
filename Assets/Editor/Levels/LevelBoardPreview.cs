@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Data.Levels;
 using Gameplay.Model;
 using Gameplay.View;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -177,7 +178,7 @@ namespace LevelEditing
         private BlockView CreateBlock(BlockData data)
         {
             var view = Object.Instantiate(_blockPrefab, _root.transform, false);
-            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets), data.Movement), _materials[data.Color]);
+            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets), data.Movement, data.IceCount), _materials[data.Color]);
             view.transform.localPosition = Position(data.Position);
             return view;
         }
@@ -202,7 +203,7 @@ namespace LevelEditing
                 if (data != null)
                 {
                     _ghost = CreateBlock(data);
-                    _ghostRenderers = _ghost.GetComponentsInChildren<MeshRenderer>();
+                    _ghostRenderers = Array.FindAll(_ghost.GetComponentsInChildren<MeshRenderer>(), renderer => renderer.GetComponent<TMP_Text>() == null);
                     _invalidMaterial = new Material(_materials[data.Color]);
                     var color = _invalidMaterial.color;
                     color.a = 0.35f;

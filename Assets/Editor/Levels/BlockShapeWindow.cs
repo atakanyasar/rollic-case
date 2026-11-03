@@ -72,6 +72,7 @@ namespace LevelEditing
             EditorGUI.BeginChangeCheck();
             _source.Color = (BlockColor)EditorGUILayout.EnumPopup("Color", _source.Color);
             _source.Movement = (BlockMovement)EditorGUILayout.EnumPopup("Movement", _source.Movement);
+            _source.IceCount = Mathf.Max(0, EditorGUILayout.IntField("Ice count (0 = none)", _source.IceCount));
             var minimum = LevelEditorRules.GetMinimumSize(_state);
             _state.Width = EditorGUILayout.IntSlider("Drawing width", _state.Width, minimum.x, Mathf.Max(32, minimum.x));
             _state.Height = EditorGUILayout.IntSlider("Drawing height", _state.Height, minimum.y, Mathf.Max(32, minimum.y));

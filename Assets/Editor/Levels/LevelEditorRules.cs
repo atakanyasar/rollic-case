@@ -38,6 +38,7 @@ namespace LevelEditing
                 Id = source.Id,
                 Color = source.Color,
                 Movement = source.Movement,
+                IceCount = source.IceCount,
                 Position = source.Position,
                 Offsets = new List<Vector2Int>(source.Offsets)
             };
@@ -140,9 +141,9 @@ namespace LevelEditing
             var ids = new HashSet<int>();
             foreach (var block in state.Blocks)
             {
-                if (!ids.Add(block.Id) || !IsConnected(block.Offsets))
+                if (!ids.Add(block.Id) || !IsConnected(block.Offsets) || block.IceCount < 0)
                 {
-                    message = $"Block {block.Id} has a duplicate ID or a disconnected/empty shape.";
+                    message = $"Block {block.Id} has a duplicate ID, invalid shape or negative ice count.";
                     return false;
                 }
             }
