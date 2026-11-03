@@ -20,7 +20,7 @@ namespace Gameplay.Model
 
             foreach (var blockData in data.Blocks)
             {
-                var block = new Block(blockData.Color, new List<Vector2Int>(blockData.Offsets));
+                var block = new Block(blockData.Color, new List<Vector2Int>(blockData.Offsets), blockData.Movement);
                 Grid.EmplaceBlock(block, blockData.Position.y, blockData.Position.x);
                 Blocks.Add(blockData.Id, block);
             }

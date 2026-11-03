@@ -9,6 +9,7 @@ namespace Data.Levels
     {
         public int Id;
         public BlockColor Color;
+        public BlockMovement Movement;
         public Vector2Int Position;
         public List<Vector2Int> Offsets = new() { Vector2Int.zero };
     }

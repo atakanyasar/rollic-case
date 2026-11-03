@@ -37,6 +37,7 @@ namespace LevelEditing
             {
                 Id = source.Id,
                 Color = source.Color,
+                Movement = source.Movement,
                 Position = source.Position,
                 Offsets = new List<Vector2Int>(source.Offsets)
             };

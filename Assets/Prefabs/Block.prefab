@@ -48,6 +48,10 @@ MonoBehaviour:
   Edge: {fileID: -2175451190157406521, guid: 8a50f4f09a6774ae5b04d5fd695ef625, type: 3}
   InnerCorner: {fileID: 4314469343302689482, guid: 8a50f4f09a6774ae5b04d5fd695ef625, type: 3}
   OuterCorner: {fileID: 4082426468845745548, guid: 8a50f4f09a6774ae5b04d5fd695ef625, type: 3}
+  Arrow1: {fileID: 4688591095375452332, guid: 9f6804181ff7e4f3aa8e087522c65dd2, type: 3}
+  Arrow2: {fileID: -7548024205449564975, guid: 9f6804181ff7e4f3aa8e087522c65dd2, type: 3}
+  Arrow3: {fileID: -8653670972026553303, guid: 9f6804181ff7e4f3aa8e087522c65dd2, type: 3}
+  ArrowDepth: -1
   CellSize: 2
   ColliderDepth: 1
   ExitDuration: 0.4

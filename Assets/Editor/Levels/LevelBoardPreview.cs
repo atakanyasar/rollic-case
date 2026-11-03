@@ -27,6 +27,7 @@ namespace LevelEditing
         private int _ghostId = -1;
         private MeshRenderer[] _ghostRenderers;
         private Material _invalidMaterial;
+        private readonly MaterialPropertyBlock _ghostProperties = new();
         private Quaternion _rotation;
         private string _error;
 
@@ -176,7 +177,7 @@ namespace LevelEditing
         private BlockView CreateBlock(BlockData data)
         {
             var view = Object.Instantiate(_blockPrefab, _root.transform, false);
-            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets)), _materials[data.Color]);
+            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets), data.Movement), _materials[data.Color]);
             view.transform.localPosition = Position(data.Position);
             return view;
         }
@@ -222,6 +223,14 @@ namespace LevelEditing
                 foreach (var renderer in _ghostRenderers)
                 {
                     renderer.sharedMaterial = valid ? _materials[_ghost.Block.Color] : _invalidMaterial;
+                    if (renderer.HasPropertyBlock())
+                    {
+                        renderer.GetPropertyBlock(_ghostProperties);
+                        var color = _ghostProperties.GetColor("_Color");
+                        color.a = valid ? 1f : 0.35f;
+                        _ghostProperties.SetColor("_Color", color);
+                        renderer.SetPropertyBlock(_ghostProperties);
+                    }
                 }
             }
         }

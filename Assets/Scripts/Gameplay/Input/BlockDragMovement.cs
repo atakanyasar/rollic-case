@@ -20,6 +20,15 @@ namespace Gameplay.Input
         public void MoveTo(Vector2 target)
         {
             var delta = target - Position;
+            if (!_block.AllowsMovement(System.Math.Sign(delta.x), 0))
+            {
+                target.x = Position.x;
+            }
+            if (!_block.AllowsMovement(0, System.Math.Sign(delta.y)))
+            {
+                target.y = Position.y;
+            }
+            delta = target - Position;
             if (Mathf.Abs(delta.x) >= Mathf.Abs(delta.y))
             {
                 MoveAxis(target.x, true);
@@ -99,7 +108,9 @@ namespace Gameplay.Input
             }
 
             var direction = System.Math.Sign(target - currentCell);
-            if (direction != 0 && !_grid.CanMove(_block, horizontal ? direction : 0, horizontal ? 0 : direction))
+            if (direction != 0 && !_grid.CanOccupy(_block,
+                _block.PivotCell.Row + (horizontal ? 0 : direction),
+                _block.PivotCell.Column + (horizontal ? direction : 0)))
             {
                 target = currentCell;
             }

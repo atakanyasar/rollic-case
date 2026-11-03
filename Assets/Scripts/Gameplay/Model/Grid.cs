@@ -35,7 +35,7 @@ namespace Gameplay.Model
 
         public bool CanMove(Block block, int dx, int dy)
         {
-            if (block.IsExiting)
+            if (block.IsExiting || !block.AllowsMovement(dx, dy))
             {
                 return false;
             }
@@ -57,6 +57,10 @@ namespace Gameplay.Model
 
             var dx = door.Direction.x;
             var dy = door.Direction.y;
+            if (!block.AllowsMovement(dx, dy))
+            {
+                return false;
+            }
 
             var touchesEdge = false;
             foreach (var offset in block.Offsets)

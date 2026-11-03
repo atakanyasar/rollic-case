@@ -12,6 +12,11 @@ namespace Gameplay.View
         [SerializeField] private MeshRenderer InnerCorner;
         [SerializeField] private MeshRenderer OuterCorner;
 
+        [SerializeField] private MeshRenderer Arrow1;
+        [SerializeField] private MeshRenderer Arrow2;
+        [SerializeField] private MeshRenderer Arrow3;
+        [SerializeField] private float ArrowDepth;
+
         [SerializeField] private float CellSize;
         [SerializeField] private float ColliderDepth;
         [SerializeField] private float ExitDuration;
@@ -58,6 +63,45 @@ namespace Gameplay.View
                 part.gameObject.SetActive(true);
                 _parts.Add(part.gameObject);
             }
+            if (block.Movement != BlockMovement.Free)
+            {
+                CreateArrow(material);
+            }
+        }
+
+        private void CreateArrow(Material material)
+        {
+            var vertical = Block.Movement == BlockMovement.UpDown;
+            var axis = vertical ? Vector2Int.up : Vector2Int.right;
+            var min = Block.Offsets[0];
+            var max = min;
+            foreach (var cell in Block.Offsets)
+            {
+                min = Vector2Int.Min(min, cell);
+                max = Vector2Int.Max(max, cell);
+            }
+            var center = (Vector2)(min + max) * 0.5f;
+            var length = 0;
+            foreach (var cell in Block.Offsets)
+            {
+                var run = 1;
+                while (run < 3 && Block.Offsets.Contains(cell + axis * run))
+                {
+                    run++;
+                }
+                length = Mathf.Max(length, run);
+            }
+            var source = length == 3 ? Arrow3 : length == 2 ? Arrow2 : Arrow1;
+            var arrow = Instantiate(source, transform, false);
+            arrow.transform.localPosition = new Vector3(center.x * CellSize, center.y * CellSize, ArrowDepth);
+            arrow.transform.localRotation = Quaternion.Euler(0f, 0f, vertical ? 0f : 90f);
+            arrow.transform.localScale = Vector3.one * (CellSize * 0.5f);
+            arrow.sharedMaterial = material;
+            var properties = new MaterialPropertyBlock();
+            properties.SetColor("_Color", Color.white);
+            arrow.SetPropertyBlock(properties);
+            arrow.gameObject.SetActive(true);
+            _parts.Add(arrow.gameObject);
         }
 
         public Sequence PlayExit(Vector3 alignedPosition, Vector2Int direction)
