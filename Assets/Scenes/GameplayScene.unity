@@ -7040,6 +7040,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LevelText: {fileID: 368384518}
+  RetryLevelText: {fileID: 1985435386}
   CoinText: {fileID: 1867301346}
   TimerView: {fileID: 948737971}
   LoseWindow: {fileID: 1259437904}

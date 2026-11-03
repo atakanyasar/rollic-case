@@ -9,6 +9,7 @@ namespace UI.Screens
     public class GameplayUI : MonoBehaviour
     {
         [SerializeField] private TMP_Text LevelText;
+        [SerializeField] private TMP_Text RetryLevelText;
         [SerializeField] private TMP_Text CoinText;
         [SerializeField] private TimerView TimerView;
         [SerializeField] private LoseWindow LoseWindow;
@@ -43,6 +44,7 @@ namespace UI.Screens
         public void Prepare(int levelId, float remainingSeconds)
         {
             LevelText.SetText("Level \n<size=150%>{0}</size>", levelId);
+            RetryLevelText.SetText("Level {0}", levelId);
             SettingsWindow.gameObject.SetActive(false);
             WinWindow.Hide();
             LoseWindow.Hide();

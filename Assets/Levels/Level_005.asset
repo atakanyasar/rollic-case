@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c807b92ab6974bf981098ce5396f89e7, type: 3}
   m_Name: Level_005
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   Id: 5
   Width: 7
   Height: 7
@@ -19,9 +19,9 @@ MonoBehaviour:
   Blocks:
   - Id: 1
     Color: 0
-    Movement: 1
+    Movement: 0
     IceCount: 12
-    Position: {x: 3, y: 0}
+    Position: {x: 1, y: 0}
     Offsets:
     - {x: 0, y: 0}
     - {x: 0, y: 1}
@@ -29,7 +29,7 @@ MonoBehaviour:
     Color: 1
     Movement: 2
     IceCount: 0
-    Position: {x: 1, y: 3}
+    Position: {x: 0, y: 3}
     Offsets:
     - {x: 0, y: 0}
     - {x: 1, y: 0}
@@ -38,16 +38,15 @@ MonoBehaviour:
     Color: 3
     Movement: 1
     IceCount: 11
-    Position: {x: 5, y: 1}
+    Position: {x: 5, y: 0}
     Offsets:
     - {x: 0, y: 0}
     - {x: 0, y: 1}
-    - {x: 0, y: 2}
   - Id: 4
     Color: 2
     Movement: 0
     IceCount: 0
-    Position: {x: 0, y: 0}
+    Position: {x: 3, y: 3}
     Offsets:
     - {x: 0, y: 0}
     - {x: 1, y: 0}
@@ -64,7 +63,7 @@ MonoBehaviour:
     Color: 3
     Movement: 0
     IceCount: 0
-    Position: {x: 0, y: 4}
+    Position: {x: 1, y: 4}
     Offsets:
     - {x: 0, y: 0}
     - {x: 0, y: 1}
@@ -73,7 +72,7 @@ MonoBehaviour:
     Color: 2
     Movement: 0
     IceCount: 0
-    Position: {x: 4, y: 0}
+    Position: {x: 3, y: 1}
     Offsets:
     - {x: 0, y: 0}
     - {x: 1, y: 0}
@@ -95,49 +94,29 @@ MonoBehaviour:
     - {x: 1, y: 0}
     - {x: 2, y: 0}
     - {x: 3, y: 0}
-  - Id: 10
-    Color: 0
-    Movement: 0
-    IceCount: 0
-    Position: {x: 1, y: 4}
-    Offsets:
-    - {x: 0, y: 0}
-    - {x: 1, y: 0}
-    - {x: 2, y: 0}
-    - {x: 3, y: 0}
   - Id: 11
     Color: 1
     Movement: 0
     IceCount: 0
-    Position: {x: 0, y: 6}
+    Position: {x: 1, y: 6}
     Offsets:
     - {x: 0, y: 0}
     - {x: 1, y: 0}
     - {x: 2, y: 0}
     - {x: 3, y: 0}
-  - Id: 12
-    Color: 1
-    Movement: 0
-    IceCount: 0
-    Position: {x: 5, y: 5}
-    Offsets:
-    - {x: 0, y: 0}
-    - {x: 1, y: 0}
-    - {x: 0, y: 1}
-    - {x: 1, y: 1}
   - Id: 13
     Color: 0
     Movement: 0
     IceCount: 0
-    Position: {x: 5, y: 4}
+    Position: {x: 3, y: 0}
     Offsets:
     - {x: 0, y: 0}
     - {x: 1, y: 0}
   - Id: 14
-    Color: 2
+    Color: 0
     Movement: 0
     IceCount: 0
-    Position: {x: 2, y: 0}
+    Position: {x: 0, y: 0}
     Offsets:
     - {x: 0, y: 0}
     - {x: 0, y: 1}
@@ -145,21 +124,59 @@ MonoBehaviour:
     Color: 0
     Movement: 0
     IceCount: 0
-    Position: {x: 4, y: 6}
+    Position: {x: 0, y: 6}
     Offsets:
     - {x: 0, y: 0}
   - Id: 16
     Color: 1
     Movement: 0
     IceCount: 0
-    Position: {x: 6, y: 3}
+    Position: {x: 0, y: 2}
     Offsets:
     - {x: 0, y: 0}
   - Id: 17
     Color: 2
     Movement: 0
     IceCount: 0
-    Position: {x: 0, y: 2}
+    Position: {x: 0, y: 4}
+    Offsets:
+    - {x: 0, y: 0}
+  - Id: 18
+    Color: 4
+    Movement: 0
+    IceCount: 0
+    Position: {x: 6, y: 2}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - Id: 19
+    Color: 0
+    Movement: 0
+    IceCount: 0
+    Position: {x: 5, y: 2}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - Id: 20
+    Color: 3
+    Movement: 0
+    IceCount: 0
+    Position: {x: 6, y: 4}
+    Offsets:
+    - {x: 0, y: 0}
+    - {x: 0, y: 1}
+  - Id: 21
+    Color: 3
+    Movement: 0
+    IceCount: 0
+    Position: {x: 6, y: 6}
+    Offsets:
+    - {x: 0, y: 0}
+  - Id: 22
+    Color: 3
+    Movement: 0
+    IceCount: 0
+    Position: {x: 5, y: 6}
     Offsets:
     - {x: 0, y: 0}
   Doors:
@@ -175,22 +192,10 @@ MonoBehaviour:
     Side: 1
     Start: 5
     End: 5
-  - Color: 2
-    Side: 2
-    Start: 0
-    End: 1
-  - Color: 1
-    Side: 3
-    Start: 0
-    End: 1
   - Color: 3
     Side: 2
     Start: 4
     End: 5
-  - Color: 2
-    Side: 2
-    Start: 2
-    End: 2
   - Color: 0
     Side: 3
     Start: 4
@@ -202,4 +207,8 @@ MonoBehaviour:
   - Color: 2
     Side: 1
     Start: 0
-    End: 2
+    End: 3
+  - Color: 4
+    Side: 0
+    Start: 5
+    End: 5
