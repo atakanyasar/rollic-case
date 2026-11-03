@@ -405,7 +405,7 @@ namespace LevelEditing
                 _stagingState.Height = size.y + 1;
             }
             _stagingRevision = _revision;
-            _stagingPreview = new LevelBoardPreview();
+            _stagingPreview = new LevelBoardPreview(Repaint);
         }
 
         private int NextBlockId()
@@ -530,7 +530,7 @@ namespace LevelEditing
         {
             if (_preview == null)
             {
-                _preview = new LevelBoardPreview();
+                _preview = new LevelBoardPreview(Repaint);
             }
             var viewport = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none,
                 GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true), GUILayout.MinHeight(240f));

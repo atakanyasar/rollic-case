@@ -31,12 +31,42 @@ namespace LevelEditing
         private readonly MaterialPropertyBlock _dragPreviewProperties = new();
         private Quaternion _rotation;
         private string _error;
+        private bool _needsRebuild;
+        private readonly Action _repaint;
+
+        public LevelBoardPreview(Action repaint)
+        {
+            _repaint = repaint;
+            EditorSceneManager.sceneSaved += OnSceneSaved;
+            EditorApplication.projectChanged += Invalidate;
+            EditorApplication.playModeStateChanged += OnPlayModeChanged;
+        }
+
+        public void Invalidate()
+        {
+            _needsRebuild = true;
+            _repaint();
+        }
+
+        private void OnSceneSaved(Scene scene)
+        {
+            Invalidate();
+        }
+
+        private void OnPlayModeChanged(PlayModeStateChange state)
+        {
+            if (state == PlayModeStateChange.ExitingEditMode || state == PlayModeStateChange.EnteredEditMode)
+            {
+                ClearResources();
+                Invalidate();
+            }
+        }
 
         public string Error => _error;
 
         public void Prepare(Rect rect, LevelEditorState state, int revision, float zoom)
         {
-            if (_state != state || _revision != revision || (_preview != null && _root == null))
+            if (_needsRebuild || _state != state || _revision != revision || (_preview != null && _root == null))
             {
                 Rebuild(state, revision);
             }
@@ -71,7 +101,8 @@ namespace LevelEditing
 
         private void Rebuild(LevelEditorState state, int revision)
         {
-            Dispose();
+            ClearResources();
+            _needsRebuild = false;
             _state = state;
             _revision = revision;
             _error = null;
@@ -99,7 +130,7 @@ namespace LevelEditing
             }
             catch (Exception exception)
             {
-                Dispose();
+                ClearResources();
                 _error = "Cannot build gameplay preview: " + exception.Message;
             }
         }
@@ -271,6 +302,14 @@ namespace LevelEditing
         }
 
         public void Dispose()
+        {
+            EditorSceneManager.sceneSaved -= OnSceneSaved;
+            EditorApplication.projectChanged -= Invalidate;
+            EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+            ClearResources();
+        }
+
+        private void ClearResources()
         {
             if (_preview != null)
             {

@@ -37,6 +37,11 @@ namespace LevelEditing
             window.ShowUtility();
         }
 
+        private void OnFocus()
+        {
+            _preview?.Invalidate();
+        }
+
         private void OnDisable()
         {
             _preview?.Dispose();
@@ -80,7 +85,7 @@ namespace LevelEditing
             {
                 RefreshPreview();
             }
-            _preview ??= new LevelBoardPreview();
+            _preview ??= new LevelBoardPreview(Repaint);
             var area = GUILayoutUtility.GetRect(GUIContent.none, GUIStyle.none, GUILayout.ExpandWidth(true), GUILayout.ExpandHeight(true), GUILayout.MinHeight(160f));
             _preview.Prepare(area, _state, _revision, 1f);
             if (!string.IsNullOrEmpty(_preview.Error))
