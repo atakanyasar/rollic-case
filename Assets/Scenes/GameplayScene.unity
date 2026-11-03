@@ -6987,13 +6987,7 @@ MonoBehaviour:
   WallMaterial: {fileID: 2100000, guid: c371ee5e64774e20a08c663d6ac87891, type: 2}
   MeshCellSize: 2
   WallDepth: 0
-  RedMaterial: {fileID: 2100000, guid: bb747866109b64cf898042a72b662dd8, type: 2}
-  BlueMaterial: {fileID: 2100000, guid: 2598dbe51a6844b2b24a3d5eb3613e96, type: 2}
-  YellowMaterial: {fileID: 2100000, guid: c1f1f6668b5a4f9185bac91ed525b3f7, type: 2}
-  GreenMaterial: {fileID: 2100000, guid: bec4fc1af72842d480ba7e84c6c916f0, type: 2}
-  PurpleMaterial: {fileID: 2100000, guid: 8adbbea293ba43f883e0af654a33eb8e, type: 2}
-  OrangeMaterial: {fileID: 2100000, guid: 6fb2b378934744acaa4d5d2033961c5a, type: 2}
-  PinkMaterial: {fileID: 2100000, guid: 84fdf6c11d9548c7be5c898abbd198ab, type: 2}
+  Palette: {fileID: 11400000, guid: fabde58f54ef487c94b7c2980e7c9a94, type: 2}
 --- !u!114 &1900000006
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7030,13 +7024,7 @@ MonoBehaviour:
   BoardScreenFraction: {x: 0.8, y: 0.8}
   BoardMaskPadding: 0.5
   BlockMaterials:
-    RedMaterial: {fileID: 2100000, guid: bb747866109b64cf898042a72b662dd8, type: 2}
-    BlueMaterial: {fileID: 2100000, guid: 2598dbe51a6844b2b24a3d5eb3613e96, type: 2}
-    YellowMaterial: {fileID: 2100000, guid: c1f1f6668b5a4f9185bac91ed525b3f7, type: 2}
-    GreenMaterial: {fileID: 2100000, guid: bec4fc1af72842d480ba7e84c6c916f0, type: 2}
-    PurpleMaterial: {fileID: 2100000, guid: 8adbbea293ba43f883e0af654a33eb8e, type: 2}
-    OrangeMaterial: {fileID: 2100000, guid: 6fb2b378934744acaa4d5d2033961c5a, type: 2}
-    PinkMaterial: {fileID: 2100000, guid: 84fdf6c11d9548c7be5c898abbd198ab, type: 2}
+    Palette: {fileID: 11400000, guid: fabde58f54ef487c94b7c2980e7c9a94, type: 2}
     BoardMaskShader: {fileID: 4800000, guid: f4f72d21b6fd492cb2bbefc54092c9f3, type: 3}
     BoardMask: {fileID: 2800000, guid: 3916729f504e045d4ad17e30edbf5028, type: 3}
 --- !u!114 &1900000009

@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System;
 using Gameplay.Model;
 using UnityEngine;
+
 namespace Gameplay.View
 {
     [Serializable]
@@ -9,45 +10,21 @@ namespace Gameplay.View
     {
         private readonly Dictionary<BlockColor, Material> _materials = new();
 
-        [SerializeField] private Material RedMaterial;
-        [SerializeField] private Material BlueMaterial;
-        [SerializeField] private Material YellowMaterial;
-        [SerializeField] private Material GreenMaterial;
-        [SerializeField] private Material PurpleMaterial;
-        [SerializeField] private Material OrangeMaterial;
-        [SerializeField] private Material PinkMaterial;
+        [SerializeField] private BlockPalette Palette;
         [SerializeField] private Shader BoardMaskShader;
         [SerializeField] private Texture2D BoardMask;
 
         public void Prepare(Matrix4x4 worldToLocal, Vector2 size)
         {
-            var sources = new Dictionary<BlockColor, Material>
-            {
-                { BlockColor.Red, RedMaterial },
-                { BlockColor.Blue, BlueMaterial },
-                { BlockColor.Yellow, YellowMaterial },
-                { BlockColor.Green, GreenMaterial },
-                { BlockColor.Purple, PurpleMaterial },
-                { BlockColor.Orange, OrangeMaterial },
-                { BlockColor.Pink, PinkMaterial }
-            };
-            foreach (var entry in sources)
-            {
-                if (entry.Value == null)
-                {
-                    throw new InvalidOperationException($"BlockMaterials: {entry.Key} source material is null at runtime.");
-                }
-            }
-
             Dispose();
-            foreach (var entry in sources)
+            foreach (BlockColor color in Enum.GetValues(typeof(BlockColor)))
             {
-                var material = new Material(entry.Value);
+                var material = new Material(Palette.Get(color));
                 material.shader = BoardMaskShader;
                 material.SetTexture("_BoardMask", BoardMask);
                 material.SetMatrix("_BoardWorldToLocal", worldToLocal);
                 material.SetVector("_BoardSize", new Vector4(size.x, size.y, 0f, 0f));
-                _materials.Add(entry.Key, material);
+                _materials.Add(color, material);
             }
         }
 

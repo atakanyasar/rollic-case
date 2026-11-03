@@ -12,6 +12,7 @@ namespace LevelEditing
     public static class LevelEditorPlayTest
     {
         private const string ProgressKey = "CurrentLevelIndex";
+        private const string CoinKey = "Coins";
         private const string BackupKey = "Rollic.LevelEditor.PlayTest.";
         private const string GameplayPath = "Assets/Scenes/GameplayScene.unity";
 
@@ -47,8 +48,8 @@ namespace LevelEditing
                 return;
             }
             var previousScene = EditorSceneManager.playModeStartScene;
-            EditorPrefs.SetBool(BackupKey + "HadKey", PlayerPrefs.HasKey(ProgressKey));
-            EditorPrefs.SetInt(BackupKey + "Index", PlayerPrefs.GetInt(ProgressKey, 0));
+            BackupPreference(ProgressKey, "", 0);
+            BackupPreference(CoinKey, "Coins.", new CoinInventory().Balance);
             EditorPrefs.SetString(BackupKey + "StartScene", previousScene == null ? "" : AssetDatabase.GetAssetPath(previousScene));
             EditorPrefs.SetBool(BackupKey + "Active", true);
             CachedInt.Get(ProgressKey).Value = catalog.Levels.IndexOf(asset);
@@ -94,24 +95,42 @@ namespace LevelEditing
             }
         }
 
+        private static void BackupPreference(string key, string name, int defaultValue)
+        {
+            EditorPrefs.SetBool(BackupKey + name + "HadKey", PlayerPrefs.HasKey(key));
+            EditorPrefs.SetInt(BackupKey + name + "Index", PlayerPrefs.GetInt(key, defaultValue));
+        }
+
+        private static void RestorePreference(string key, string name)
+        {
+            var valueKey = BackupKey + name + "Index";
+            if (!EditorPrefs.HasKey(valueKey))
+            {
+                return;
+            }
+            var value = EditorPrefs.GetInt(valueKey);
+            CachedInt.Get(key, value).Value = value;
+            CachedInt.Save();
+            if (!EditorPrefs.GetBool(BackupKey + name + "HadKey"))
+            {
+                PlayerPrefs.DeleteKey(key);
+                PlayerPrefs.Save();
+            }
+            EditorPrefs.DeleteKey(BackupKey + name + "HadKey");
+            EditorPrefs.DeleteKey(valueKey);
+        }
+
         private static void Restore()
         {
             if (!EditorPrefs.GetBool(BackupKey + "Active", false))
             {
                 return;
             }
-            CachedInt.Get(ProgressKey).Value = EditorPrefs.GetInt(BackupKey + "Index", 0);
-            CachedInt.Save();
-            if (!EditorPrefs.GetBool(BackupKey + "HadKey", false))
-            {
-                PlayerPrefs.DeleteKey(ProgressKey);
-                PlayerPrefs.Save();
-            }
+            RestorePreference(ProgressKey, "");
+            RestorePreference(CoinKey, "Coins.");
             var path = EditorPrefs.GetString(BackupKey + "StartScene", "");
             EditorSceneManager.playModeStartScene = string.IsNullOrEmpty(path) ? null : AssetDatabase.LoadAssetAtPath<SceneAsset>(path);
             EditorPrefs.DeleteKey(BackupKey + "Active");
-            EditorPrefs.DeleteKey(BackupKey + "HadKey");
-            EditorPrefs.DeleteKey(BackupKey + "Index");
             EditorPrefs.DeleteKey(BackupKey + "StartScene");
         }
     }

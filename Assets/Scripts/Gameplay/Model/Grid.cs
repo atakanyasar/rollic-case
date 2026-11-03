@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+
 namespace Gameplay.Model
 {
     public class Grid
@@ -8,13 +9,12 @@ namespace Gameplay.Model
         public Cell[,] Cells { get; }
         public List<Door> Doors { get; } = new();
 
-
         public Grid(int width, int height)
         {
             Width = width;
             Height = height;
             Cells = new Cell[height, width];
-            
+
             for (var row = 0; row < height; row++)
             {
                 for (var column = 0; column < width; column++)
@@ -38,11 +38,6 @@ namespace Gameplay.Model
             if (block.IsExiting || !block.AllowsMovement(dx, dy))
             {
                 return false;
-            }
-
-            if (block?.PivotCell == null)
-            {
-                return CanOccupy(block, dy, dx);
             }
 
             return CanOccupy(block, block.PivotCell.Row + dy, block.PivotCell.Column + dx);
@@ -109,7 +104,7 @@ namespace Gameplay.Model
 
         public bool TryMove(Block block, int dx, int dy)
         {
-            if (!CanMove(block, dx, dy) || block.PivotCell == null)
+            if (!CanMove(block, dx, dy))
             {
                 return false;
             }

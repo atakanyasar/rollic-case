@@ -1,45 +1,25 @@
 using System.Collections;
-using System;
 using Data.Levels;
-using Data.Storage;
 using Gameplay.Input;
 using Gameplay.Model;
 using Gameplay.View;
 using UI.Screens;
 using UnityEngine.SceneManagement;
 using UnityEngine;
+
 namespace Gameplay.Flow
 {
     public class LevelController : MonoBehaviour
     {
-
-        private const float ContinueTimeSeconds = 20f;
-        private const int ContinueCost = 900;
-        private const int WinReward = 40;
-
         [SerializeField] private LevelCatalog LevelCatalog;
 
         [SerializeField] private BoardView BoardView;
         [SerializeField] private GameplayUI GameplayUI;
         [SerializeField] private BlockDragController DragController;
 
-        private LevelTimer _timer;
-        private LevelProgress _progress;
-        private CoinInventory _coins;
-        private enum LevelState
-        {
-            Playing,
-            AwaitingContinue,
-            ConfirmingRetry,
-            Paused,
-            Finished,
-            Completed
-        }
+        private LevelSession _session;
 
-        private LevelState _state;
-
-        public Level CurrentLevel { get; private set; }
-        public event Action LevelCompleted;
+        public Level CurrentLevel => _session.Level;
 
         private void OnEnable()
         {
@@ -55,179 +35,137 @@ namespace Gameplay.Flow
         {
             Initialize();
         }
-        
+
         private void Update()
         {
-            if (_state != LevelState.Playing)
+            var expired = _session.Tick(Time.deltaTime);
+            GameplayUI.SetTime(_session.Timer.RemainingSeconds);
+            if (expired)
             {
-                return;
-            }
-
-            _timer.Tick(Time.deltaTime);
-            GameplayUI.SetTime(_timer.RemainingSeconds);
-            if (_timer.IsExpired)
-            {
-                _state = LevelState.AwaitingContinue;
-                _timer.Pause();
-                DragController.enabled = false;
-                Time.timeScale = 0f;
-                GameplayUI.ShowOutOfTime(_coins.Balance >= ContinueCost);
+                SetPaused(true);
+                GameplayUI.ShowOutOfTime(_session.CanContinue);
             }
         }
 
         public void ContinueLevel()
         {
-            if (_state != LevelState.AwaitingContinue)
+            if (!_session.Continue())
             {
                 return;
             }
 
-            if (!_coins.TrySpend(ContinueCost))
-            {
-                return;
-            }
-
-            _state = LevelState.Playing;
-            _timer.AddTime(ContinueTimeSeconds);
-            GameplayUI.SetCoins(_coins.Balance);
-            _timer.Resume();
+            GameplayUI.SetCoins(_session.CoinBalance);
             GameplayUI.HideOutOfTime();
-            GameplayUI.SetTime(_timer.RemainingSeconds);
-            Time.timeScale = 1f;
-            DragController.enabled = true;
+            GameplayUI.SetTime(_session.Timer.RemainingSeconds);
+            SetPaused(false);
         }
 
         public void DeclineContinue()
         {
-            if (_state != LevelState.AwaitingContinue)
+            if (!_session.DeclineContinue())
             {
                 return;
             }
 
-            _state = LevelState.Finished;
             GameplayUI.ShowLose();
         }
 
         public void OpenRetry()
         {
-            if (_state != LevelState.Playing)
+            if (!_session.OpenRetry())
             {
                 return;
             }
 
-            _state = LevelState.ConfirmingRetry;
-            _timer.Pause();
-            DragController.enabled = false;
-            Time.timeScale = 0f;
+            SetPaused(true);
             GameplayUI.ShowRetry();
         }
 
         public void CloseRetry()
         {
-            if (_state != LevelState.ConfirmingRetry)
+            if (!_session.CloseRetry())
             {
                 return;
             }
 
-            _state = LevelState.Playing;
             GameplayUI.HideRetry();
-            _timer.Resume();
-            Time.timeScale = 1f;
-            DragController.enabled = true;
+            SetPaused(false);
         }
 
         public void ConfirmRetry()
         {
-            if (_state != LevelState.ConfirmingRetry)
+            if (!_session.ConfirmRetry())
             {
                 return;
             }
 
-            _state = LevelState.Finished;
             GameplayUI.ShowLose();
         }
 
         public void PauseLevel()
         {
-            if (_state != LevelState.Playing)
+            if (!_session.Pause())
             {
                 return;
             }
 
-            _state = LevelState.Paused;
-            _timer.Pause();
-            DragController.enabled = false;
-            Time.timeScale = 0f;
+            SetPaused(true);
             GameplayUI.ShowSettings();
         }
 
         public void ResumeLevel()
         {
-            if (_state != LevelState.Paused)
+            if (!_session.Resume())
             {
                 return;
             }
 
-            _state = LevelState.Playing;
-            _timer.Resume();
-            Time.timeScale = 1f;
-            DragController.enabled = true;
+            SetPaused(false);
         }
 
         public void NextLevel()
         {
-            if (_state != LevelState.Completed)
+            if (!_session.Finish(true))
             {
                 return;
             }
 
-            _state = LevelState.Finished;
-            _coins.Add(WinReward);
             Time.timeScale = 1f;
             SceneManager.LoadScene("GameplayScene");
         }
 
         public void WinHome()
         {
-            if (_state != LevelState.Completed)
+            if (!_session.Finish(false))
             {
                 return;
             }
 
-            _state = LevelState.Finished;
             Time.timeScale = 1f;
             SceneManager.LoadScene("MainScene");
         }
 
-        public void PauseTimer()
+        private void SetPaused(bool paused)
         {
-            _timer.Pause();
-        }
-
-        public void ResumeTimer()
-        {
-            _timer.Resume();
+            DragController.enabled = !paused;
+            Time.timeScale = paused ? 0f : 1f;
         }
 
         public void Initialize()
         {
             StopAllCoroutines();
-            _progress = new LevelProgress(LevelCatalog);
-            _coins = new CoinInventory();
-            CurrentLevel = new Level(_progress.CurrentLevel);
-            _timer = new LevelTimer(CurrentLevel.TimeLimitSeconds);
-            _state = LevelState.Playing;
+            _session = new LevelSession(LevelCatalog);
             Time.timeScale = 1f;
             DragController.enabled = true;
-            GameplayUI.Prepare(CurrentLevel.Id, _timer.RemainingSeconds);
-            GameplayUI.SetCoins(_coins.Balance);
+            GameplayUI.Prepare(CurrentLevel.Id, _session.Timer.RemainingSeconds);
+            GameplayUI.SetCoins(_session.CoinBalance);
 
             BoardView.Prepare(CurrentLevel);
         }
 
         public bool TryExit(BlockView view, Vector2Int direction)
         {
-            if (_state != LevelState.Playing || !CurrentLevel.TryBeginExit(view.Block, direction, out var door))
+            if (!_session.TryBeginExit(view.Block, direction, out var door))
             {
                 return false;
             }
@@ -239,24 +177,14 @@ namespace Gameplay.Flow
         private IEnumerator ExitBlock(BlockView view, Door door)
         {
             yield return BoardView.PlayExit(view, door);
-            while (_state == LevelState.AwaitingContinue || _state == LevelState.ConfirmingRetry || _state == LevelState.Paused)
+            while (_session.IsPaused)
             {
                 yield return null;
             }
-            if (_state == LevelState.Finished)
+            if (_session.CompleteExit(view.Block))
             {
-                yield break;
-            }
-
-            CurrentLevel.RemoveBlock(view.Block);
-            if (CurrentLevel.IsCompleted)
-            {
-                _state = LevelState.Completed;
-                _timer.Pause();
                 DragController.enabled = false;
-                _progress.Advance();
                 GameplayUI.ShowWin();
-                LevelCompleted?.Invoke();
             }
         }
     }

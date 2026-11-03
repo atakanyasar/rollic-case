@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using Gameplay.Model;
 using UnityEngine;
 using Grid = Gameplay.Model.Grid;
+
 namespace Gameplay.View
 {
     public class WallView : MonoBehaviour
@@ -13,13 +14,7 @@ namespace Gameplay.View
         [SerializeField] private float MeshCellSize;
         [SerializeField] private float WallDepth;
 
-        [SerializeField] private Material RedMaterial;
-        [SerializeField] private Material BlueMaterial;
-        [SerializeField] private Material YellowMaterial;
-        [SerializeField] private Material GreenMaterial;
-        [SerializeField] private Material PurpleMaterial;
-        [SerializeField] private Material OrangeMaterial;
-        [SerializeField] private Material PinkMaterial;
+        [SerializeField] private BlockPalette Palette;
 
         private GameObject _wallRoot;
         private readonly Dictionary<Door, DoorView> _doorViews = new();
@@ -46,7 +41,7 @@ namespace Gameplay.View
                 var view = Instantiate(DoorPrefab, _wallRoot.transform, false);
                 view.name = $"Door_{door.Side}_{door.Start}_{door.End}";
                 view.transform.localPosition = origin + new Vector3(position.x * cellSize, position.y * cellSize, 0f);
-                view.Prepare(door, GetDoorMaterial(door), cellSize);
+                view.Prepare(door, Palette.Get(door.Color), cellSize);
                 _doorViews.Add(door, view);
             }
 
@@ -128,21 +123,6 @@ namespace Gameplay.View
             }
 
             return null;
-        }
-
-        private Material GetDoorMaterial(Door door)
-        {
-            return door.Color switch
-            {
-                BlockColor.Red => RedMaterial,
-                BlockColor.Blue => BlueMaterial,
-                BlockColor.Yellow => YellowMaterial,
-                BlockColor.Green => GreenMaterial,
-                BlockColor.Purple => PurpleMaterial,
-                BlockColor.Orange => OrangeMaterial,
-                BlockColor.Pink => PinkMaterial,
-                _ => WallMaterial
-            };
         }
 
         private GameObject CreatePart(MeshRenderer source, Material material, string name,

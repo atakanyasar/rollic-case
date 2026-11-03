@@ -3,6 +3,7 @@ using DG.Tweening;
 using TMPro;
 using Gameplay.Model;
 using UnityEngine;
+
 namespace Gameplay.View
 {
     public class BlockView : MonoBehaviour
@@ -46,6 +47,7 @@ namespace Gameplay.View
                 Block.IceChanged -= OnIceChanged;
             }
             ClearParts();
+            _arrow = null;
             _bodyRenderers.Clear();
             Block = block;
             Block.IceChanged += OnIceChanged;
@@ -59,11 +61,18 @@ namespace Gameplay.View
             _center = (Vector2)(min + max) * 0.5f;
             CreateColliders();
 
-            var layout = BuildLayout(block.Offsets);
+            var layout = BlockMeshLayout.Build(block.Offsets);
             var spacing = CellSize * 0.5f;
             foreach (var entry in layout)
             {
-                var source = entry.Value.Renderer;
+                var source = entry.Value.Type switch
+                {
+                    BlockMeshLayout.PartType.Center => Center,
+                    BlockMeshLayout.PartType.Edge => Edge,
+                    BlockMeshLayout.PartType.InnerCorner => InnerCorner,
+                    BlockMeshLayout.PartType.OuterCorner => OuterCorner,
+                    _ => throw new System.ArgumentOutOfRangeException()
+                };
                 var part = Instantiate(source, transform);
                 var rotation = Quaternion.Euler(0f, 0f, entry.Value.Angle);
                 var position = new Vector3(
@@ -183,97 +192,6 @@ namespace Gameplay.View
                 transform.DOScale(Vector3.zero, ExitDuration * 0.25f).SetEase(Ease.Linear));
             sequence.SetLink(gameObject, LinkBehaviour.KillOnDisable);
             return sequence;
-        }
-
-        private Dictionary<Vector2Int, (MeshRenderer Renderer, int Angle)> BuildLayout(List<Vector2Int> offsets)
-        {
-            var cells = new HashSet<Vector2Int>();
-            foreach (var offset in offsets)
-            {
-                for (var y = 0; y < 2; y++)
-                {
-                    for (var x = 0; x < 2; x++)
-                    {
-                        cells.Add(offset * 2 + new Vector2Int(x, y));
-                    }
-                }
-            }
-
-            var layout = new Dictionary<Vector2Int, (MeshRenderer Renderer, int Angle)>();
-            var coveredEdges = new HashSet<Vector2Int>();
-            var directions = new[]
-            {
-                Vector2Int.right,
-                Vector2Int.up,
-                Vector2Int.left,
-                Vector2Int.down
-            };
-
-            foreach (var cell in cells)
-            {
-                var selected = false;
-                for (var rotation = 0; rotation < 4; rotation++)
-                {
-                    var first = directions[rotation];
-                    var second = directions[(rotation + 1) % 4];
-                    if (!cells.Contains(cell + first) && !cells.Contains(cell + second))
-                    {
-                        layout.Add(cell, (OuterCorner, rotation * 90));
-                        selected = true;
-                        break;
-                    }
-                }
-
-                if (selected)
-                {
-                    continue;
-                }
-
-                for (var rotation = 0; rotation < 4; rotation++)
-                {
-                    var outward = directions[(rotation + 1) % 4];
-                    if (!cells.Contains(cell + outward))
-                    {
-                        layout.Add(cell, (Edge, rotation * 90));
-                        selected = true;
-                        break;
-                    }
-                }
-
-                if (selected)
-                {
-                    continue;
-                }
-
-                for (var rotation = 0; rotation < 4; rotation++)
-                {
-                    var first = directions[rotation];
-                    var second = directions[(rotation + 1) % 4];
-                    if (!cells.Contains(cell + first + second))
-                    {
-                        layout.Add(cell, (InnerCorner, rotation * 90));
-                        coveredEdges.Add(cell + first);
-                        coveredEdges.Add(cell + second);
-                        selected = true;
-                        break;
-                    }
-                }
-
-                if (!selected)
-                {
-                    layout.Add(cell, (Center, 0));
-                }
-            }
-
-            foreach (var cell in coveredEdges)
-            {
-                if (layout.TryGetValue(cell, out var part) && part.Renderer == Edge)
-                {
-                    layout.Remove(cell);
-                }
-            }
-
-            return layout;
         }
 
         private void CreateColliders()

@@ -20,15 +20,15 @@ namespace LevelEditing
         private GameObject _root;
         private BlockView _blockPrefab;
         private readonly Dictionary<int, BlockView> _blocks = new();
-        private readonly Dictionary<BlockColor, Material> _materials = new();
+        private BlockPalette _palette;
         private LevelEditorState _state;
         private int _revision = -1;
         private float _cellSize;
-        private BlockView _ghost;
-        private int _ghostId = -1;
-        private MeshRenderer[] _ghostRenderers;
+        private BlockView _dragPreview;
+        private int _dragPreviewId = -1;
+        private MeshRenderer[] _dragPreviewRenderers;
         private Material _invalidMaterial;
-        private readonly MaterialPropertyBlock _ghostProperties = new();
+        private readonly MaterialPropertyBlock _dragPreviewProperties = new();
         private Quaternion _rotation;
         private string _error;
 
@@ -59,7 +59,7 @@ namespace LevelEditing
             {
                 return;
             }
-            UpdateGhost(dragId, dragPosition, valid);
+            UpdateDragPreview(dragId, dragPosition, valid);
             if (Event.current.type == EventType.Repaint)
             {
                 _preview.BeginPreview(rect, GUIStyle.none);
@@ -150,10 +150,7 @@ namespace LevelEditing
                 EditorUtility.CopySerialized(sourceFields.FindProperty("GridView").objectReferenceValue, grid);
                 EditorUtility.CopySerialized(sourceFields.FindProperty("WallView").objectReferenceValue, walls);
                 EditorUtility.CopySerialized(source, board);
-                foreach (BlockColor color in Enum.GetValues(typeof(BlockColor)))
-                {
-                    _materials[color] = (Material)sourceFields.FindProperty("BlockMaterials." + color + "Material").objectReferenceValue;
-                }
+                _palette = (BlockPalette)sourceFields.FindProperty("BlockMaterials.Palette").objectReferenceValue;
                 var fields = new SerializedObject(board);
                 fields.FindProperty("GridView").objectReferenceValue = grid;
                 fields.FindProperty("WallView").objectReferenceValue = walls;
@@ -178,33 +175,33 @@ namespace LevelEditing
         private BlockView CreateBlock(BlockData data)
         {
             var view = Object.Instantiate(_blockPrefab, _root.transform, false);
-            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets), data.Movement, data.IceCount), _materials[data.Color]);
+            view.Prepare(new Block(data.Color, new List<Vector2Int>(data.Offsets), data.Movement, data.IceCount), _palette.Get(data.Color));
             view.transform.localPosition = Position(data.Position);
             return view;
         }
 
-        private void UpdateGhost(int id, Vector2 position, bool valid)
+        private void UpdateDragPreview(int id, Vector2 position, bool valid)
         {
             foreach (var entry in _blocks)
             {
                 entry.Value.gameObject.SetActive(entry.Key != id);
             }
-            if (_ghostId != id)
+            if (_dragPreviewId != id)
             {
-                if (_ghost != null)
+                if (_dragPreview != null)
                 {
-                    Object.DestroyImmediate(_ghost.gameObject);
+                    Object.DestroyImmediate(_dragPreview.gameObject);
                 }
                 Object.DestroyImmediate(_invalidMaterial);
                 _invalidMaterial = null;
-                _ghost = null;
-                _ghostId = id;
+                _dragPreview = null;
+                _dragPreviewId = id;
                 var data = _state.Blocks.Find(b => b.Id == id) ?? _state.Pending.Find(b => b.Id == id);
                 if (data != null)
                 {
-                    _ghost = CreateBlock(data);
-                    _ghostRenderers = Array.FindAll(_ghost.GetComponentsInChildren<MeshRenderer>(), renderer => renderer.GetComponent<TMP_Text>() == null);
-                    _invalidMaterial = new Material(_materials[data.Color]);
+                    _dragPreview = CreateBlock(data);
+                    _dragPreviewRenderers = Array.FindAll(_dragPreview.GetComponentsInChildren<MeshRenderer>(), renderer => renderer.GetComponent<TMP_Text>() == null);
+                    _invalidMaterial = new Material(_palette.Get(data.Color));
                     var color = _invalidMaterial.color;
                     color.a = 0.35f;
                     _invalidMaterial.color = color;
@@ -218,19 +215,19 @@ namespace LevelEditing
                     _invalidMaterial.renderQueue = (int)RenderQueue.Transparent;
                 }
             }
-            if (_ghost != null)
+            if (_dragPreview != null)
             {
-                _ghost.transform.localPosition = Position(position);
-                foreach (var renderer in _ghostRenderers)
+                _dragPreview.transform.localPosition = Position(position);
+                foreach (var renderer in _dragPreviewRenderers)
                 {
-                    renderer.sharedMaterial = valid ? _materials[_ghost.Block.Color] : _invalidMaterial;
+                    renderer.sharedMaterial = valid ? _palette.Get(_dragPreview.Block.Color) : _invalidMaterial;
                     if (renderer.HasPropertyBlock())
                     {
-                        renderer.GetPropertyBlock(_ghostProperties);
-                        var color = _ghostProperties.GetColor("_Color");
+                        renderer.GetPropertyBlock(_dragPreviewProperties);
+                        var color = _dragPreviewProperties.GetColor("_Color");
                         color.a = valid ? 1f : 0.35f;
-                        _ghostProperties.SetColor("_Color", color);
-                        renderer.SetPropertyBlock(_ghostProperties);
+                        _dragPreviewProperties.SetColor("_Color", color);
+                        renderer.SetPropertyBlock(_dragPreviewProperties);
                     }
                 }
             }
@@ -283,11 +280,11 @@ namespace LevelEditing
             Object.DestroyImmediate(_invalidMaterial);
             _invalidMaterial = null;
             _root = null;
-            _ghost = null;
-            _ghostId = -1;
-            _ghostRenderers = null;
+            _dragPreview = null;
+            _dragPreviewId = -1;
+            _dragPreviewRenderers = null;
             _blocks.Clear();
-            _materials.Clear();
+            _palette = null;
         }
     }
 }

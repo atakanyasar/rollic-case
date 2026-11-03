@@ -110,10 +110,6 @@ MonoBehaviour:
     Side: 2
     Start: 0
     End: 1
-  - Color: 3
-    Side: 1
-    Start: 4
-    End: 4
   - Color: 1
     Side: 3
     Start: 1

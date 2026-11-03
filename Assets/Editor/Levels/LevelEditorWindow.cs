@@ -127,16 +127,9 @@ namespace LevelEditing
 
         private void OnUndoRedo()
         {
-            State.InvalidateModel();
-            _revision++;
-            _dragId = -1;
             _selectedDoor = -1;
-            if (GUIUtility.hotControl == _dragControlId)
-            {
-                GUIUtility.hotControl = 0;
-            }
             _message = null;
-            Repaint();
+            RefreshPreviews();
         }
 
         private void CreateState()
@@ -193,7 +186,7 @@ namespace LevelEditing
                     DrawBlocks();
                     DrawDoors();
                     EditorGUILayout.EndScrollView();
-                    
+
                     if (!string.IsNullOrEmpty(_message))
                     {
                         EditorGUILayout.HelpBox(_message, MessageType.Warning);
@@ -281,27 +274,32 @@ namespace LevelEditing
             {
                 if (GUILayout.Button("Shuffle"))
                 {
-                    if (!LevelEditorRules.Validate(State, out _message))
-                    {
-                        return;
-                    }
-                    var level = State.Model;
-                    var moves = LevelShuffler.Shuffle(level, _shuffleMoves, new System.Random());
-                    if (moves == 0)
-                    {
-                        _message = "No unvisited moves available. Movement axes and collisions are respected.";
-                        return;
-                    }
-                    Change("Shuffle blocks");
-                    foreach (var block in State.Blocks)
-                    {
-                        var pivot = level.Blocks[block.Id].PivotCell;
-                        block.Position = new Vector2Int(pivot.Column, pivot.Row);
-                    }
-                    _message = $"Shuffled {moves} moves, including ice blocks. Solvability is not checked. Save to keep this layout.";
-                    Repaint();
+                    Shuffle();
                 }
             }
+        }
+
+        private void Shuffle()
+        {
+            if (!LevelEditorRules.Validate(State, out _message))
+            {
+                return;
+            }
+            var level = State.Model;
+            var moves = LevelShuffler.Shuffle(level, _shuffleMoves, new System.Random());
+            if (moves == 0)
+            {
+                _message = "No unvisited moves available. Movement axes and collisions are respected.";
+                return;
+            }
+            Change("Shuffle blocks");
+            foreach (var block in State.Blocks)
+            {
+                var pivot = level.Blocks[block.Id].PivotCell;
+                block.Position = new Vector2Int(pivot.Column, pivot.Row);
+            }
+            _message = $"Shuffled {moves} moves, including ice blocks. Solvability is not checked. Save to keep this layout.";
+            Repaint();
         }
 
         private void DrawBlocks()
@@ -364,22 +362,7 @@ namespace LevelEditing
             EditorGUILayout.HelpBox("Drag blocks onto the board. Use the zoom slider to adjust their size.", MessageType.Info);
             if (_stagingState == null || _stagingRevision != _revision)
             {
-                ClearStagingPreview();
-                _stagingState = CreateInstance<LevelEditorState>();
-                _stagingState.hideFlags = HideFlags.HideAndDontSave;
-                _stagingState.Width = 1;
-                _stagingState.Height = 0;
-                foreach (var pending in State.Pending)
-                {
-                    var block = LevelEditorRules.Copy(pending);
-                    block.Position = new Vector2Int(0, _stagingState.Height);
-                    _stagingState.Blocks.Add(block);
-                    var size = LevelEditorRules.GetMinimumSize(_stagingState);
-                    _stagingState.Width = size.x;
-                    _stagingState.Height = size.y + 1;
-                }
-                _stagingRevision = _revision;
-                _stagingPreview = new LevelBoardPreview();
+                RebuildStagingPreview();
             }
             _stagingScale = EditorGUILayout.Slider("Zoom", _stagingScale, 0.5f, 1.5f);
             var area = GUILayoutUtility.GetRect(240f, 100f);
@@ -398,15 +381,31 @@ namespace LevelEditing
                 var block = _stagingState.Blocks.Find(b => b.Offsets.Contains(cell - b.Position));
                 if (block != null)
                 {
-                    _selectedBlock = _dragId = block.Id;
-                    GUIUtility.hotControl = _dragControlId;
-                    _dragFromPending = true;
-                    _grab = cell - block.Position;
-                    _dragPointerOffset = pointer - (Vector2)block.Position;
+                    BeginDrag(block, cell, pointer, true);
                     Event.current.Use();
                     Repaint();
                 }
             }
+        }
+
+        private void RebuildStagingPreview()
+        {
+            ClearStagingPreview();
+            _stagingState = CreateInstance<LevelEditorState>();
+            _stagingState.hideFlags = HideFlags.HideAndDontSave;
+            _stagingState.Width = 1;
+            _stagingState.Height = 0;
+            foreach (var pending in State.Pending)
+            {
+                var block = LevelEditorRules.Copy(pending);
+                block.Position = new Vector2Int(0, _stagingState.Height);
+                _stagingState.Blocks.Add(block);
+                var size = LevelEditorRules.GetMinimumSize(_stagingState);
+                _stagingState.Width = size.x;
+                _stagingState.Height = size.y + 1;
+            }
+            _stagingRevision = _revision;
+            _stagingPreview = new LevelBoardPreview();
         }
 
         private int NextBlockId()
@@ -566,6 +565,15 @@ namespace LevelEditing
             HandlePreviewMouse(hasCell, cell, block, position, valid, pointer);
         }
 
+        private void BeginDrag(BlockData block, Vector2Int cell, Vector2 pointer, bool fromPending)
+        {
+            _selectedBlock = _dragId = block.Id;
+            GUIUtility.hotControl = _dragControlId;
+            _dragFromPending = fromPending;
+            _grab = cell - block.Position;
+            _dragPointerOffset = pointer - (Vector2)block.Position;
+        }
+
         private void HandlePreviewMouse(bool hasCell, Vector2Int cell, BlockData draggedBlock, Vector2Int position, bool valid, Vector2 pointer)
         {
             var evt = Event.current;
@@ -577,11 +585,7 @@ namespace LevelEditing
                     _selectedBlock = block == null ? -1 : block.Id;
                     if (block != null)
                     {
-                        _dragId = block.Id;
-                        GUIUtility.hotControl = _dragControlId;
-                        _dragFromPending = false;
-                        _grab = cell - block.Position;
-                        _dragPointerOffset = pointer - (Vector2)block.Position;
+                        BeginDrag(block, cell, pointer, false);
                     }
                 }
                 else
@@ -686,35 +690,11 @@ namespace LevelEditing
 
         private bool Save(bool saveAs)
         {
-            if (!LevelEditorRules.Validate(State, out _message))
+            if (!LevelEditorStorage.Save(State, Asset, Catalog, saveAs, out var saved, out _message))
             {
                 return false;
             }
-            if (Catalog != null && Catalog.Levels.Exists(level => level != Asset && level != null && level.Id == State.Id))
-            {
-                _message = "Another level in the catalog already uses this ID.";
-                return false;
-            }
-            var target = Asset;
-            if (target == null || saveAs)
-            {
-                var path = EditorUtility.SaveFilePanelInProject("Save Level", $"Level_{State.Id:000}", "asset", "Choose where to save this level.", "Assets/Levels");
-                if (string.IsNullOrEmpty(path))
-                {
-                    return false;
-                }
-                if (AssetDatabase.LoadMainAssetAtPath(path) != null)
-                {
-                    _message = "Choose a new filename; use Save to update the currently open asset.";
-                    return false;
-                }
-                target = CreateInstance<LevelData>();
-                AssetDatabase.CreateAsset(target, path);
-            }
-            State.WriteTo(target);
-            EditorUtility.SetDirty(target);
-            AssetDatabase.SaveAssets();
-            Asset = target;
+            Asset = saved;
             State.InvalidateModel();
             _revision++;
             EditorUtility.ClearDirty(State);
